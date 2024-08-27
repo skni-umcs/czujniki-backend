@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>skni.kamilG</groupId>
-	<artifactId>skin-sensors-api</artifactId>
+    <artifactId>skni-sensors-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>skin-sensors-api</name>
 	<description>RestApi for SKNI&apos;s sensors data managing </description>
@@ -67,6 +67,18 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
 		</dependency>
 	</dependencies>
 
