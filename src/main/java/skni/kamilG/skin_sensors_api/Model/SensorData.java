@@ -3,6 +3,7 @@ package skni.kamilG.skin_sensors_api.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @NoArgsConstructor
@@ -23,18 +24,14 @@ public class SensorData {
     @JoinColumn(name = "sensor_id", nullable = false)
     private Sensor sensor;
 
-    @Column(name = "timestamp", nullable = false)
-    private ZonedDateTime timestamp;
+    private LocalDateTime timestamp;
 
-    @Column(name = "temperature", nullable = false)
-    private Integer temperature;
+    private short temperature;
 
-    @Column(name = "humidity", nullable = false)
-    private Integer humidity;
+    private long humidity;
 
-    @Column(name = "pressure", nullable = false)
-    private Integer pressure;
+    private long pressure;
 
     @Column(name = "gas_resistance", nullable = false)
-    private Integer gasResistance;
+    private long gasResistance;
 }

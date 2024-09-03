@@ -1,75 +1,84 @@
 package skni.kamilG.skin_sensors_api.Service;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import skni.kamilG.skin_sensors_api.Exception.ResourceNotFoundException;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.SensorData;
-import skni.kamilG.skin_sensors_api.Model.SensorStatus;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
-import skni.kamilG.skin_sensors_api.Repository.SensorStatusRepository;
+import skni.kamilG.skin_sensors_api.Repository.UserRepository;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Service
-public class SensorService {
+public class SensorService implements ISensorService {
+
+    private final SensorRepository sensorRepository;
+    private final SensorDataRepository sensorDataRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private SensorRepository sensorRepository;
+    public SensorService(SensorRepository sensorRepository, SensorDataRepository sensorDataRepository, UserRepository userRepository) {
+        this.sensorRepository = sensorRepository;
+        this.sensorDataRepository = sensorDataRepository;
+        this.userRepository = userRepository;
+    }
 
-    @Autowired
-    private SensorDataRepository sensorDataRepository;
+    @Override
+    public Sensor getSensorById(Short sensorId) {
+        return sensorRepository.findById(sensorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sensor not found with id " + sensorId));
+    }
 
-    @Autowired
-    private SensorStatusRepository sensorStatusRepository;
+    @Override
+    public List<SensorData> getSensorHistoryById(Short sensorId, LocalDateTime startDate, LocalDateTime endDate) {
+        return sensorDataRepository.findBySensorIdAndTimestampBetween(sensorId, startDate, endDate);
+    }
 
-    @Scheduled(fixedRate = 60000)
-    public void updateSensorValues() {
+    @Override
+    public List<Sensor> getAllSensorsData() {
+        return sensorRepository.findAll();
+    }
 
-        Iterable<Sensor> sensors = sensorRepository.findAll();
+    @Override
+    public List<SensorData> getAllSensorsHistory(LocalDateTime startDate, LocalDateTime endDate) {
+        return sensorDataRepository.findByTimestampBetween(startDate, endDate);
+    }
 
-        for (Sensor sensor : sensors) {
+    @Override
+    public List<Sensor> getSensorsByFaculty(String facultyName) {
+        return sensorRepository.findByLocationFacultyName(facultyName);
+    }
 
-            Optional<SensorData> latestData = sensorDataRepository.findTopBySensorOrderByTimestampDesc(sensor);
+    @Override
+    public List<SensorData> getSensorsHistoryByFaculty(String facultyName, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
+        return sensorDataRepository.findBySensorInAndTimestampBetween(sensors, startDate, endDate);
+    }
 
-            if (latestData.isPresent()) {
-                SensorData data = latestData.get();
+    @Override
+    public Sensor addSensor(Sensor sensor) {
+        return sensorRepository.save(sensor);
+    }
 
-                sensor.updateCurrentValues(data);
-                sensorRepository.save(sensor);
-                SensorStatus status = new SensorStatus();
-                status.setSensorId(sensor.getSensorId());
-                status.setStatus("Active");
-                status.setLastChecked(ZonedDateTime.now());
-                sensorStatusRepository.save(status);
-            } else {
-                // Opcjonalnie: Zaktualizuj status sensora na "Offline" jeśli brak danych
-                SensorStatus status = new SensorStatus();
-                status.setSensorId(sensor.getSensorId());
-                status.setStatus("Offline");
-                status.setLastChecked(ZonedDateTime.now());
-                sensorStatusRepository.save(status);
-            }
+    @Override
+    public Sensor updateSensor(Sensor sensor) {
+        if (!sensorRepository.existsById(sensor.getSensorId())) {
+            throw new ResourceNotFoundException("Sensor not found with id " + sensor.getSensorId());
         }
+        return sensorRepository.save(sensor);
     }
 
-    // Metoda do zapisywania danych sensora
-    public SensorData saveSensorData(SensorData sensorData) {
-        Sensor sensor = sensorData.getSensor();
-        sensor.updateCurrentValues(sensorData);
-        sensorRepository.save(sensor); // Zapisuje również zaktualizowane wartości
-        return sensorDataRepository.save(sensorData);
-    }
-
-    // Metoda do pobierania aktualnych wartości czujnika
-    public Sensor getCurrentSensorValues(Short sensorId) {
-        return sensorRepository.findById(sensorId).orElseThrow(() -> new RuntimeException("Sensor not found"));
-    }
-
-    // Metoda do pobierania historii danych czujnika
-    public Iterable<SensorData> getSensorDataHistory(Short sensorId) {
-        Sensor sensor = sensorRepository.findById(sensorId).orElseThrow(() -> new RuntimeException("Sensor not found"));
-        return sensorDataRepository.findBySensor(sensor);
+    @Override
+    public void deleteSensor(Short sensorId) {
+        if (!sensorRepository.existsById(sensorId)) {
+            throw new ResourceNotFoundException("Sensor not found with id " + sensorId);
+        }
+        sensorRepository.deleteById(sensorId);
     }
 }
+

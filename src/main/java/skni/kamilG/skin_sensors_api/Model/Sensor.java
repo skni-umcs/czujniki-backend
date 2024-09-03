@@ -4,6 +4,9 @@ package skni.kamilG.skin_sensors_api.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.security.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,34 +24,36 @@ public class Sensor {
     @Column(name = "sensor_id")
     private Short sensorId;
 
-    @Column(name = "location")
-    private String location;
+    private SensorStatus status;
 
-    @Column(name = "current_temperature")
-    private Integer currentTemperature;
+    private LocalDateTime latestDataUpdate;
 
-    @Column(name = "current_humidity")
-    private Integer currentHumidity;
+    @Transient
+    private short currentTemperature;
 
-    @Column(name = "current_pressure")
-    private Integer currentPressure;
+    @Transient
+    private long currentHumidity;
 
-    @Column(name = "current_gas_resistance")
-    private Integer currentGasResistance;
+    @Transient
+    private long currentPressure;
 
-    private Department department;
+    @Transient
+    private long currentGasResistance;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    private Location location;
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<SensorData> sensorData = new HashSet<>();
 
-    @Transient
-    private SensorStatus status;
-
-    public void updateCurrentValues(SensorData data) {
-        this.currentTemperature = data.getTemperature();
-        this.currentHumidity = data.getHumidity();
-        this.currentPressure = data.getPressure();
-        this.currentGasResistance = data.getGasResistance();
+    public void setCurrentData(SensorData latestSensorData, LocalDateTime latestDataUpdate) {
+        this.currentTemperature = latestSensorData.getTemperature();
+        this.currentHumidity = latestSensorData.getHumidity();
+        this.currentPressure = latestSensorData.getPressure();
+        this.currentGasResistance = latestSensorData.getGasResistance();
+        this.latestDataUpdate = latestDataUpdate;
     }
+
 }
 

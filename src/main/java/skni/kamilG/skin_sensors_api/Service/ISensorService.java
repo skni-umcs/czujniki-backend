@@ -1,31 +1,34 @@
 package skni.kamilG.skin_sensors_api.Service;
 
+
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.SensorData;
-import skni.kamilG.skin_sensors_api.Model.SensorStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ISensorService {
 
-    List<Sensor> getAllSensors();
+    //Main Functionalities
+    Sensor getSensorById(Short sensorId);
 
-    Sensor getSensorById(Long id);
+    List<SensorData> getSensorHistoryById(Short sensorId, LocalDateTime startDate, LocalDateTime endDate);
 
+    List<Sensor> getAllSensorsData();
+
+    List<SensorData> getAllSensorsHistory(LocalDateTime startDate, LocalDateTime endDate);
+
+    List<Sensor> getSensorsByFaculty(String facultyName);
+
+    List<SensorData> getSensorsHistoryByFaculty(String facultyName, LocalDateTime startDate, LocalDateTime endDate);
+
+    //Admin Functionalities
     Sensor addSensor(Sensor sensor);
 
-    Sensor updateSensor(Long id, Sensor sensor);
+    Sensor updateSensor(Sensor sensor);
 
-    void deleteSensor(Long id);
+    void deleteSensor(Short sensorId);
 
-    List<Sensor> getSensorsByDepartment(String department);
-
-    SensorData getSensorData(Short id);
-
-    void reportSensorFailure(Long id, String issueDescription);
-
-    SensorStatus checkSensorStatus(Long id);
-
-    void updateSensorLocation(Long id, String newLocation);
 }
+
 
