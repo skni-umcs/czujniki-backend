@@ -6,10 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SensorStatus {
-    ONLINE("Online"),
-    OFFLINE("Offline"),
-    ERROR("Error");
+  ONLINE("Online"),
+  OFFLINE("Offline"),
+  ERROR("Error");
 
-    private final String status;
-
+  private final String status;
 }

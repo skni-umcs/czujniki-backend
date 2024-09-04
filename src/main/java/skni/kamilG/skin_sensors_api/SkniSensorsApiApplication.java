@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class SkinSensorsApiApplication {
+public class SkniSensorsApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SkinSensorsApiApplication.class, args);
+    SpringApplication.run(SkniSensorsApiApplication.class, args);
 	}
 
 }

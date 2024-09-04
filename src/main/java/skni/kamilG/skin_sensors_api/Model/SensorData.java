@@ -1,10 +1,8 @@
 package skni.kamilG.skin_sensors_api.Model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,23 +13,23 @@ import java.time.ZonedDateTime;
 @Table(name = "sensor_data")
 public class SensorData {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "data_id")
-    private Long dataId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "data_id")
+  private Long dataId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sensor_id", nullable = false)
-    private Sensor sensor;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "sensor_id", nullable = false)
+  private Sensor sensor;
 
-    private LocalDateTime timestamp;
+  private LocalDateTime timestamp;
 
-    private short temperature;
+  private short temperature;
 
-    private long humidity;
+  private long humidity;
 
-    private long pressure;
+  private long pressure;
 
-    @Column(name = "gas_resistance", nullable = false)
-    private long gasResistance;
+  @Column(name = "gas_resistance", nullable = false)
+  private long gasResistance;
 }
