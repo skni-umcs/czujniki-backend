@@ -12,4 +12,6 @@ public interface IUserService {
   void addFavoriteSensor(Long userId, Short sensorId);
 
   User getUserByUsername(String username);
+
+  Long getUserIdByUsername(String username);
 }

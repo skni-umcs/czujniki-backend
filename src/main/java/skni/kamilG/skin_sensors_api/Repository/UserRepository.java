@@ -8,4 +8,6 @@ import skni.kamilG.skin_sensors_api.Model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByUsername(String username);
+
+  Optional<Long> findUserIdByUsername(String username);
 }

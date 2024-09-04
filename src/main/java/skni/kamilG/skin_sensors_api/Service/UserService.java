@@ -1,6 +1,7 @@
 package skni.kamilG.skin_sensors_api.Service;
 
 import java.util.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Exception.UserNotFoundException;
@@ -46,6 +47,13 @@ public class UserService implements IUserService {
     return userRepository
         .findByUsername(username)
         .orElseThrow(() -> new UserNotFoundException(username));
+  }
+
+  @Override
+  public Long getUserIdByUsername(String username) {
+    return userRepository
+        .findUserIdByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException(username));
   }
 
   @Override
