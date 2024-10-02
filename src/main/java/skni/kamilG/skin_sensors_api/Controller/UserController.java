@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.User;
 import skni.kamilG.skin_sensors_api.Service.IUserService;
-import skni.kamilG.skin_sensors_api.Service.UserService;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,7 +20,7 @@ public class UserController {
   private final IUserService userService;
 
   @Autowired
-  public UserController(UserService userService) {
+  public UserController(IUserService userService) {
     this.userService = userService;
   }
 

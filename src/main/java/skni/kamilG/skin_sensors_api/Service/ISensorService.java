@@ -2,6 +2,8 @@ package skni.kamilG.skin_sensors_api.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.SensorData;
 
@@ -10,16 +12,16 @@ public interface ISensorService {
   // Main Functionalities
   Sensor getSensorById(Short sensorId);
 
-  List<SensorData> getSensorHistoryById(
+  Optional<List<SensorData>> getSensorDataById(
       Short sensorId, LocalDateTime startDate, LocalDateTime endDate);
 
-  List<Sensor> getAllSensorsData();
+  List<Sensor> getAllSensors();
 
-  List<SensorData> getAllSensorsHistory(LocalDateTime startDate, LocalDateTime endDate);
+  Optional<List<SensorData>> getAllSensorsData(LocalDateTime startDate, LocalDateTime endDate);
 
   List<Sensor> getSensorsByFaculty(String facultyName);
 
-  List<SensorData> getSensorsHistoryByFaculty(
+  Optional<List<SensorData>> getSensorsDataByFaculty(
       String facultyName, LocalDateTime startDate, LocalDateTime endDate);
 
   // Admin Functionalities

@@ -11,4 +11,5 @@ public interface SensorRepository extends JpaRepository<Sensor, Short> {
   List<Sensor> findByStatus(SensorStatus status);
 
   List<Sensor> findByLocationFacultyName(String facultyName);
+
 }

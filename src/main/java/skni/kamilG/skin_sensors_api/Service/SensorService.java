@@ -2,6 +2,8 @@ package skni.kamilG.skin_sensors_api.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
@@ -31,20 +33,24 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public List<SensorData> getSensorHistoryById(
+  public Optional<List<SensorData>> getSensorDataById(
       Short sensorId, LocalDateTime startDate, LocalDateTime endDate) {
-    return sensorDataRepository.findBySensor_SensorIdAndTimestampBetween(
-        sensorId, startDate, endDate);
+    List<SensorData> sensorDataList =
+        sensorDataRepository.findBySensor_SensorIdAndTimestampBetween(sensorId, startDate, endDate);
+    return sensorDataList.isEmpty() ? Optional.empty() : Optional.of(sensorDataList);
   }
 
   @Override
-  public List<Sensor> getAllSensorsData() {
+  public Optional<List<SensorData>> getAllSensorsData(
+      LocalDateTime startDate, LocalDateTime endDate) {
+    List<SensorData> sensorDataList =
+        sensorDataRepository.findByTimestampBetween(startDate, endDate);
+    return sensorDataList.isEmpty() ? Optional.empty() : Optional.of(sensorDataList);
+  }
+
+  @Override
+  public List<Sensor> getAllSensors() {
     return sensorRepository.findAll();
-  }
-
-  @Override
-  public List<SensorData> getAllSensorsHistory(LocalDateTime startDate, LocalDateTime endDate) {
-    return sensorDataRepository.findByTimestampBetween(startDate, endDate);
   }
 
   @Override
@@ -53,10 +59,12 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public List<SensorData> getSensorsHistoryByFaculty(
+  public Optional<List<SensorData>> getSensorsDataByFaculty(
       String facultyName, LocalDateTime startDate, LocalDateTime endDate) {
     List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
-    return sensorDataRepository.findBySensorInAndTimestampBetween(sensors, startDate, endDate);
+    List<SensorData> sensorsData =
+        sensorDataRepository.findBySensorInAndTimestampBetween(sensors, startDate, endDate);
+    return sensorsData.isEmpty() ? Optional.empty() : Optional.of(sensorsData);
   }
 
   @Override
