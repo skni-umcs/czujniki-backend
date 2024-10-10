@@ -1,23 +1,20 @@
 package skni.kamilG.skin_sensors_api.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import skni.kamilG.skin_sensors_api.Model.DateRange;
+import skni.kamilG.skin_sensors_api.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
-
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-// TODO skonsultowanie DTO
 @RestController
 @RequestMapping("/api/sensor")
 public class SensorController {
   private final ISensorService sensorService;
 
-  @Autowired
   public SensorController(ISensorService sensorService) {
     this.sensorService = sensorService;
   }
@@ -32,38 +29,49 @@ public class SensorController {
     return sensorService.getAllSensors();
   }
 
-  @GetMapping("/{id}/data")
+  @GetMapping("/{id}/data/{startDate}/{endDate}")
   public ResponseEntity<List<SensorData>> getSensorDataById(
-      @RequestBody DateRange dataRange, @PathVariable Short id) {
-    Optional<List<SensorData>> sensorData =
-        sensorService.getSensorDataById(id, dataRange.getStart(), dataRange.getEnd());
-    return sensorData
-        .map(data -> ResponseEntity.ok().body(data))
-        .orElseGet(() -> ResponseEntity.noContent().build());
+      @PathVariable Short id,
+      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime startDate,
+      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime endDate) {
+
+    List<SensorData> sensorData = sensorService.getSensorDataById(id, startDate, endDate);
+    return ResponseEntity.ok(sensorData);
   }
 
-  @GetMapping("/all/data")
-  public ResponseEntity<List<SensorData>> getAllSensorData(@RequestParam DateRange dataRange) {
-    Optional<List<SensorData>> sensorsData =
-        sensorService.getAllSensorsData(dataRange.getStart(), dataRange.getEnd());
-    return sensorsData
-        .map(data -> ResponseEntity.ok().body(data))
-        .orElseGet(() -> ResponseEntity.noContent().build());
+  @GetMapping("/all/data/{startDate}/{endDate}")
+  public ResponseEntity<List<SensorData>> getAllSensorData(
+      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime startDate,
+      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime endDate) {
+    List<SensorData> sensorsData = sensorService.getAllSensorsData(startDate, endDate);
+    return ResponseEntity.ok(sensorsData);
   }
 
-  @GetMapping("/faculty/{facultyName}/all")
+  @GetMapping("all/faculty/{facultyName}")
   public List<Sensor> getAllSensorsByFaculty(@PathVariable String facultyName) {
     return sensorService.getSensorsByFaculty(facultyName);
   }
 
-  @GetMapping("/faculty/{facultyName}/all/data")
+  @GetMapping("/all/data/{startDate}/{endDate}/faculty/{facultyName}")
   public ResponseEntity<List<SensorData>> getAllSensorsByFacultyData(
-      @RequestParam DateRange dataRange, @PathVariable String facultyName) {
-    Optional<List<SensorData>> sensorsData =
-        sensorService.getSensorsDataByFaculty(
-            facultyName, dataRange.getStart(), dataRange.getEnd());
-    return sensorsData
-        .map(data -> ResponseEntity.ok().body(data))
-        .orElseGet(() -> ResponseEntity.noContent().build());
+      @PathVariable String facultyName,
+      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime startDate,
+      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDateTime endDate) {
+
+    List<SensorData> sensorsData =
+        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate);
+
+    return ResponseEntity.ok(sensorsData);
+  }
+
+  @ExceptionHandler(NoSensorDataFoundException.class)
+  public ResponseEntity<Void> handleNoSensorDataException() {
+    return ResponseEntity.noContent().build();
   }
 }

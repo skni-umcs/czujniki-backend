@@ -10,11 +10,11 @@ import skni.kamilG.skin_sensors_api.Model.SensorData;
 public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
   Optional<SensorData> findTopBySensorOrderByTimestampDesc(Sensor sensor);
 
-  List<SensorData> findBySensor_SensorIdAndTimestampBetween(
+  Optional<List<SensorData>> findBySensor_SensorIdAndTimestampBetween(
       Short sensorId, LocalDateTime start, LocalDateTime end);
 
-  List<SensorData> findByTimestampBetween(LocalDateTime start, LocalDateTime end);
+  Optional<List<SensorData>> findByTimestampBetween(LocalDateTime start, LocalDateTime end);
 
-  List<SensorData> findBySensorInAndTimestampBetween(
+  Optional<List<SensorData>> findBySensorInAndTimestampBetween(
       List<Sensor> sensors, LocalDateTime start, LocalDateTime end);
 }
