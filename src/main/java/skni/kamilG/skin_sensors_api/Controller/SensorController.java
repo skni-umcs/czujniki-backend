@@ -1,7 +1,10 @@
 package skni.kamilG.skin_sensors_api.Controller;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import skni.kamilG.skin_sensors_api.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
@@ -11,7 +14,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sensor")
+@RequestMapping("/api/sensors")
+@Validated
 public class SensorController {
   private final ISensorService sensorService;
 
@@ -20,54 +24,48 @@ public class SensorController {
   }
 
   @GetMapping("/{id}")
-  public Sensor getSensorById(@PathVariable Short id) {
-    return sensorService.getSensorById(id);
+  public ResponseEntity<Sensor> getSensorById(@PathVariable Short id) {
+    return ResponseEntity.ok(sensorService.getSensorById(id));
   }
 
-  @GetMapping("/all")
-  public List<Sensor> getAllSensors() {
-    return sensorService.getAllSensors();
+  @GetMapping
+  public ResponseEntity<List<Sensor>> getAllSensors() {
+    return ResponseEntity.ok(sensorService.getAllSensors());
   }
 
-  @GetMapping("/{id}/data/{startDate}/{endDate}")
+  @GetMapping("/{id}/data")
   public ResponseEntity<List<SensorData>> getSensorDataById(
       @PathVariable Short id,
-      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime endDate) {
-
-    List<SensorData> sensorData = sensorService.getSensorDataById(id, startDate, endDate);
-    return ResponseEntity.ok(sensorData);
+    return ResponseEntity.ok(sensorService.getSensorDataById(id, startDate, endDate));
   }
 
-  @GetMapping("/all/data/{startDate}/{endDate}")
+  @GetMapping("/data")
   public ResponseEntity<List<SensorData>> getAllSensorData(
-      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime endDate) {
-    List<SensorData> sensorsData = sensorService.getAllSensorsData(startDate, endDate);
-    return ResponseEntity.ok(sensorsData);
+    return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDate));
   }
 
-  @GetMapping("all/faculty/{facultyName}")
+  @GetMapping("/faculty/{facultyName}")
   public List<Sensor> getAllSensorsByFaculty(@PathVariable String facultyName) {
     return sensorService.getSensorsByFaculty(facultyName);
   }
 
-  @GetMapping("/all/data/{startDate}/{endDate}/faculty/{facultyName}")
+  @GetMapping("/faculty/{facultyName}")
   public ResponseEntity<List<SensorData>> getAllSensorsByFacultyData(
       @PathVariable String facultyName,
-      @PathVariable("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @PathVariable("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime endDate) {
-
-    List<SensorData> sensorsData =
-        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate);
-
-    return ResponseEntity.ok(sensorsData);
+    return ResponseEntity.ok(
+        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate));
   }
 
   @ExceptionHandler(NoSensorDataFoundException.class)
