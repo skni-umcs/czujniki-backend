@@ -1,9 +1,11 @@
 package skni.kamilG.skin_sensors_api.Service;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import skni.kamilG.skin_sensors_api.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
@@ -49,10 +51,11 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public List<SensorData> getAllSensorsData(LocalDateTime startDate, LocalDateTime endDate) {
+  public Page<SensorData> getAllSensorsData(
+      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
     log.info("Rest getting all sensors' data in dateRange: {} -> {}", startDate, endDate);
     return sensorDataRepository
-        .findByTimestampBetween(startDate, endDate)
+        .findByTimestampBetween(startDate, endDate, pageable)
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
@@ -63,12 +66,12 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public List<SensorData> getSensorsDataByFaculty(
-      String facultyName, LocalDateTime startDate, LocalDateTime endDate) {
+  public Page<SensorData> getSensorsDataByFaculty(
+      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
     log.info("Rest getting all sensors' from faculty {}", facultyName);
     List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
     return sensorDataRepository
-        .findBySensorInAndTimestampBetween(sensors, startDate, endDate)
+        .findBySensorInAndTimestampBetween(sensors, startDate, endDate, pageable)
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 

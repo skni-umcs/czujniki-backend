@@ -2,14 +2,18 @@ package skni.kamilG.skin_sensors_api.Controller;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import skni.kamilG.skin_sensors_api.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Model.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
+
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/sensors")
 @Validated
 public class SensorController {
+
   private final ISensorService sensorService;
 
   public SensorController(ISensorService sensorService) {
@@ -44,12 +49,15 @@ public class SensorController {
   }
 
   @GetMapping("/data")
-  public ResponseEntity<List<SensorData>> getAllSensorData(
+  public ResponseEntity<Page<SensorData>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-          LocalDateTime endDate) {
-    return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDate));
+          LocalDateTime endDate,
+      @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    Page<SensorData> sensorDataPage = sensorService.getAllSensorsData(startDate, endDate, pageable);
+    return ResponseEntity.ok(sensorDataPage);
   }
 
   @GetMapping("/faculty/{facultyName}")
@@ -58,18 +66,16 @@ public class SensorController {
   }
 
   @GetMapping("/faculty/{facultyName}")
-  public ResponseEntity<List<SensorData>> getAllSensorsByFacultyData(
+  public ResponseEntity<Page<SensorData>> getAllSensorsByFacultyData(
       @PathVariable String facultyName,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-          LocalDateTime endDate) {
-    return ResponseEntity.ok(
-        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate));
-  }
-
-  @ExceptionHandler(NoSensorDataFoundException.class)
-  public ResponseEntity<Void> handleNoSensorDataException() {
-    return ResponseEntity.noContent().build();
+          LocalDateTime endDate,
+      @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
+          Pageable pageable) {
+    Page<SensorData> sensorDataPage =
+        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate, pageable);
+    return ResponseEntity.ok(sensorDataPage);
   }
 }
