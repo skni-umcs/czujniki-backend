@@ -1,8 +1,12 @@
 package skni.kamilG.skin_sensors_api.Service;
 
 import java.util.*;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Exception.UserNotFoundException;
 import skni.kamilG.skin_sensors_api.Model.Sensor;
@@ -10,11 +14,12 @@ import skni.kamilG.skin_sensors_api.Model.User;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Repository.UserRepository;
 
+@Slf4j
 @Service
+@Transactional(readOnly = true)
 public class UserService implements IUserService {
 
   private final UserRepository userRepository;
-
   private final SensorRepository sensorRepository;
 
   public UserService(UserRepository userRepository, SensorRepository sensorRepository) {
@@ -22,28 +27,46 @@ public class UserService implements IUserService {
     this.sensorRepository = sensorRepository;
   }
 
+  @Transactional
   @Override
-  public void addFavoriteSensor(Long userId, Short sensorId) {
-    User user =
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+  public void addFavoriteSensor(@NotNull Long userId, @NotNull Short sensorId) {
 
-    Sensor sensor =
-        sensorRepository
+    log.warn("Adding favorite sensor {} for user {}", sensorId, userId);
+
+    User user = userRepository
+            .findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
+    Sensor sensor = sensorRepository
             .findById(sensorId)
             .orElseThrow(() -> new SensorNotFoundException(sensorId));
 
-    Set<Sensor> favoriteSensors = user.getFavoriteSensors();
-    if (favoriteSensors == null) {
-      favoriteSensors = new HashSet<>();
-    }
+    user.getFavoriteSensors().add(sensor);
+    log.info("Successfully added favorite sensor {} for user {}", sensorId, userId);
+  }
 
-    favoriteSensors.add(sensor);
-    user.setFavoriteSensors(favoriteSensors);
-    userRepository.save(user);
+  @Transactional
+  @Override
+  public void removeFavoriteSensor(@NotNull Long userId, @NotNull Short sensorId) {
+
+    log.warn("Removing favorite sensor {} for user {}", sensorId, userId);
+
+    User user = userRepository
+            .findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+
+    Sensor sensor = sensorRepository
+            .findById(sensorId)
+            .orElseThrow(() -> new SensorNotFoundException(sensorId));
+
+    user.getFavoriteSensors().remove(sensor);
+    log.info("Successfully removed favorite sensor {} for user {}", sensorId, userId);
   }
 
   @Override
   public User getUserByUsername(String username) {
+
+    log.warn("Getting user by username {}", username);
+
     return userRepository
         .findByUsername(username)
         .orElseThrow(() -> new UserNotFoundException(username));
@@ -51,27 +74,12 @@ public class UserService implements IUserService {
 
   @Override
   public Long getUserIdByUsername(String username) {
+
+    log.warn("Getting userID by username {}", username);
+
     return userRepository
         .findUserIdByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException(username));
-  }
-
-  @Override
-  public void removeFavoriteSensor(Long userId, Short sensorId) {
-    User user =
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
-    Sensor sensor =
-        sensorRepository
-            .findById(sensorId)
-            .orElseThrow(() -> new SensorNotFoundException(sensorId));
-
-    Set<Sensor> favoriteSensors = user.getFavoriteSensors();
-    if (favoriteSensors != null) {
-      favoriteSensors.remove(sensor);
-      user.setFavoriteSensors(favoriteSensors);
-      userRepository.save(user);
-    }
   }
 
   @Override
