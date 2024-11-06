@@ -7,8 +7,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
-import skni.kamilG.skin_sensors_api.Model.SensorData;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 
 public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
   Optional<SensorData> findTopBySensorOrderByTimestampDesc(Sensor sensor);

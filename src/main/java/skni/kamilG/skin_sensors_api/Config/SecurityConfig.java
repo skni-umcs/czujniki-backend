@@ -23,8 +23,6 @@ public class SecurityConfig {
                     .authenticated())
         .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
         .logout(LogoutConfigurer::permitAll);
-
     return http.build();
-    // TODO przejscie na JWT w pozniejszym etapie projektu
   }
 }

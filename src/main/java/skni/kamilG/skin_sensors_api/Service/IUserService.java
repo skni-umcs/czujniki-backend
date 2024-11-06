@@ -1,7 +1,7 @@
 package skni.kamilG.skin_sensors_api.Service;
 
 import java.util.List;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.User;
 
 public interface IUserService {

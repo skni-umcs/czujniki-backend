@@ -1,4 +1,4 @@
-package skni.kamilG.skin_sensors_api.Model;
+package skni.kamilG.skin_sensors_api.Model.Sensor;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

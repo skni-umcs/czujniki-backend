@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 
 @Getter
 @Setter

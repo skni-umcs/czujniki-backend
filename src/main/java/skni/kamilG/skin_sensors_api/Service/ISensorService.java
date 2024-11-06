@@ -3,13 +3,14 @@ package skni.kamilG.skin_sensors_api.Service;
 import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import skni.kamilG.skin_sensors_api.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Exception.SensorAlreadyExistsException;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
-import skni.kamilG.skin_sensors_api.Model.SensorData;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 
 public interface ISensorService {
 
@@ -23,15 +24,18 @@ public interface ISensorService {
 
   Page<SensorData> getAllSensorsData(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-  List<Sensor> getSensorsByFaculty(String facultyName) throws NoSensorsForFacultyException;
+  @SneakyThrows(NoSensorsForFacultyException.class)
+  List<Sensor> getSensorsByFaculty(String facultyName);
 
+  @SneakyThrows(NoSensorsForFacultyException.class)
   Page<SensorData> getSensorsDataByFaculty(
-      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) throws NoSensorsForFacultyException;
+      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
   // Admin Functionalities
-  Sensor createSensor(Sensor sensor) throws SensorAlreadyExistsException;
+  @SneakyThrows(SensorAlreadyExistsException.class)
+  Sensor createSensor(SensorDTO sensor);
 
-  Sensor updateSensor(Sensor sensor);
+  Sensor updateSensor(SensorDTO sensor, Short sensorId);
 
   void deleteSensor(Short sensorId);
 }

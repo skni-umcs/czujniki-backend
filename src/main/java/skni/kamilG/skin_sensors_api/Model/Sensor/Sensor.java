@@ -1,10 +1,11 @@
-package skni.kamilG.skin_sensors_api.Model;
+package skni.kamilG.skin_sensors_api.Model.Sensor;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
+import skni.kamilG.skin_sensors_api.Model.Location;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,11 +44,11 @@ public class Sensor {
       fetch = FetchType.LAZY)
   private Set<SensorData> sensorData = new HashSet<>();
 
-  public void setCurrentData(SensorData latestSensorData, LocalDateTime latestDataUpdate) {
+  public void setCurrentData(SensorData latestSensorData) {
     this.currentTemperature = latestSensorData.getTemperature();
     this.currentHumidity = latestSensorData.getHumidity();
     this.currentPressure = latestSensorData.getPressure();
     this.currentGasResistance = latestSensorData.getGasResistance();
-    this.latestDataUpdate = latestDataUpdate;
+    this.latestDataUpdate = LocalDateTime.now();
   }
 }

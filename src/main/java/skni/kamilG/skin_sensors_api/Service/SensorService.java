@@ -8,54 +8,52 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import skni.kamilG.skin_sensors_api.Exception.*;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
-import skni.kamilG.skin_sensors_api.Model.SensorData;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorMapper;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 
-//TODO weryfikacja pelnej logiki
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @Validated
+@AllArgsConstructor
 public class SensorService implements ISensorService {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
-
-  public SensorService(
-          SensorRepository sensorRepository,
-          SensorDataRepository sensorDataRepository) {
-    this.sensorRepository = sensorRepository;
-    this.sensorDataRepository = sensorDataRepository;
-  }
+  private final SensorMapper sensorMapper;
 
   @Override
   public Sensor getSensorById(@NotNull Short sensorId) {
     log.debug("Getting sensor by id: {}", sensorId);
-    return sensorRepository.findById(sensorId)
-            .orElseThrow(() -> new SensorNotFoundException(sensorId));
+    return sensorRepository
+        .findById(sensorId)
+        .orElseThrow(() -> new SensorNotFoundException(sensorId));
   }
 
   @Override
   public List<SensorData> getSensorDataById(
-          @NotNull Short sensorId,
-          @NotNull @PastOrPresent LocalDateTime startDate,
-          @NotNull @PastOrPresent LocalDateTime endDate) {
+      @NotNull Short sensorId,
+      @NotNull @PastOrPresent LocalDateTime startDate,
+      @NotNull @PastOrPresent LocalDateTime endDate) {
     validateDateRange(startDate, endDate);
 
-    log.debug("Getting sensor data for id: {} between {} and {}",
-            sensorId, startDate, endDate);
+    log.debug("Getting sensor data for id: {} between {} and {}", sensorId, startDate, endDate);
 
     return sensorDataRepository
-            .findBySensor_SensorIdAndTimestampBetween(sensorId, startDate, endDate)
-            .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
+        .findBySensor_SensorIdAndTimestampBetween(sensorId, startDate, endDate)
+        .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
   @Override
@@ -66,21 +64,21 @@ public class SensorService implements ISensorService {
 
   @Override
   public Page<SensorData> getAllSensorsData(
-          @NotNull @PastOrPresent LocalDateTime startDate,
-          @NotNull @PastOrPresent LocalDateTime endDate,
-          @NotNull Pageable pageable) {
+      @NotNull @PastOrPresent LocalDateTime startDate,
+      @NotNull @PastOrPresent LocalDateTime endDate,
+      @NotNull Pageable pageable) {
     validateDateRange(startDate, endDate);
 
-    log.debug("Getting all sensors data between {} and {}, page: {}",
-            startDate, endDate, pageable);
+    log.debug("Getting all sensors data between {} and {}, page: {}", startDate, endDate, pageable);
 
     return sensorDataRepository
-            .findByTimestampBetween(startDate, endDate, pageable)
-            .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
+        .findByTimestampBetween(startDate, endDate, pageable)
+        .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
   @Override
-  public List<Sensor> getSensorsByFaculty(@NotNull @NotBlank String facultyName) throws NoSensorsForFacultyException {
+  @SneakyThrows(NoSensorsForFacultyException.class)
+  public List<Sensor> getSensorsByFaculty(@NotNull @NotBlank String facultyName) {
     log.debug("Getting sensors for faculty: {}", facultyName);
     List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
 
@@ -93,36 +91,35 @@ public class SensorService implements ISensorService {
 
   @Override
   public Page<SensorData> getSensorsDataByFaculty(
-          @NotNull @NotBlank String facultyName,
-          @NotNull @PastOrPresent LocalDateTime startDate,
-          @NotNull @PastOrPresent LocalDateTime endDate,
-          @NotNull Pageable pageable) throws NoSensorsForFacultyException {
+      @NotNull @NotBlank String facultyName,
+      @NotNull @PastOrPresent LocalDateTime startDate,
+      @NotNull @PastOrPresent LocalDateTime endDate,
+      @NotNull Pageable pageable) {
     validateDateRange(startDate, endDate);
 
-    log.debug("Getting sensors data for faculty: {} between {} and {}",
-            facultyName, startDate, endDate);
+    log.debug(
+        "Getting sensors data for faculty: {} between {} and {}", facultyName, startDate, endDate);
 
     List<Sensor> sensors = getSensorsByFaculty(facultyName);
 
     return sensorDataRepository
-            .findBySensorInAndTimestampBetween(sensors, startDate, endDate, pageable)
-            .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
+        .findBySensorInAndTimestampBetween(sensors, startDate, endDate, pageable)
+        .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
   @Transactional
   @Override
-  public Sensor createSensor(@Valid @NotNull Sensor sensor) throws SensorAlreadyExistsException {
+  public Sensor createSensor(@Valid @NotNull SensorDTO createSensorDTO) {
     log.debug("Creating new sensor");
-    validateSensorForCreation(sensor);
-    return sensorRepository.save(sensor);
+    return sensorRepository.save(sensorMapper.createSensorDtoToSensor(createSensorDTO));
   }
 
   @Transactional
   @Override
-  public Sensor updateSensor(@Valid @NotNull Sensor sensor) {
-    log.debug("Updating sensor with id: {}", sensor.getSensorId());
+  public Sensor updateSensor(@Valid @NotNull SensorDTO sensor, @Valid @NotNull Short id) {
+    log.debug("Updating sensor with id: {}", id);
 
-    Sensor existingSensor = getSensorById(sensor.getSensorId());
+    Sensor existingSensor = getSensorById(id);
 
     existingSensor.setLocation(sensor.getLocation());
     existingSensor.setStatus(sensor.getStatus());
@@ -141,13 +138,6 @@ public class SensorService implements ISensorService {
   private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
     if (startDate.isAfter(endDate)) {
       throw new InvalidDateRangeException("Start date must be before or equal to end date");
-    }
-  }
-
-  private void validateSensorForCreation(Sensor sensor) throws SensorAlreadyExistsException {
-    if (sensor.getSensorId() != null &&
-            sensorRepository.existsById(sensor.getSensorId())) {
-      throw new SensorAlreadyExistsException(sensor.getSensorId());
     }
   }
 }

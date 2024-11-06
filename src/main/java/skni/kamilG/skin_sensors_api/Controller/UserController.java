@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.User;
 import skni.kamilG.skin_sensors_api.Service.IUserService;
 

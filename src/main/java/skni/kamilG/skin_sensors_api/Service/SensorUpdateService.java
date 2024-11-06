@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
-import skni.kamilG.skin_sensors_api.Model.SensorStatus;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorStatus;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 
@@ -36,12 +36,11 @@ public class SensorUpdateService implements ISensorUpdateService {
 
   private void performSensorDataUpdate() {
     List<Sensor> sensors = sensorRepository.findByStatus(SensorStatus.ONLINE);
-    LocalDateTime now = LocalDateTime.now();
     for (Sensor sensor : sensors) {
       sensorDataRepository
           .findTopBySensorOrderByTimestampDesc(sensor)
           .ifPresentOrElse(
-              latestData -> sensor.setCurrentData(latestData, now),
+                  sensor::setCurrentData,
               () -> sensor.setStatus(SensorStatus.OFFLINE));
       sensorRepository.save(sensor);
     }

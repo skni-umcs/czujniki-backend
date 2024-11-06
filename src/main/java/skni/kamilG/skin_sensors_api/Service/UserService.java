@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Exception.UserNotFoundException;
-import skni.kamilG.skin_sensors_api.Model.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.User;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Repository.UserRepository;
