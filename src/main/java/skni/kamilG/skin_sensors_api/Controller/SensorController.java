@@ -3,8 +3,11 @@ package skni.kamilG.skin_sensors_api.Controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import java.awt.print.Pageable;
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -15,16 +18,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
-import skni.kamilG.skin_sensors_api.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
-
-import java.awt.print.Pageable;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -94,7 +91,7 @@ public class SensorController {
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
-            .buildAndExpand(createdSensor.getSensorId())
+            .buildAndExpand(createdSensor.getId())
             .toUri();
 
     return ResponseEntity.created(location).build();

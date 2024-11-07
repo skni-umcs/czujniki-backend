@@ -18,8 +18,7 @@ public class Sensor {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "sensor_id")
-  private Short sensorId;
+  private Short id;
 
   private SensorStatus status;
 

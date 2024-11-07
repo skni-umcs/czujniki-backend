@@ -1,13 +1,12 @@
 package skni.kamilG.skin_sensors_api.Service;
 
-import java.awt.print.Pageable;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import java.awt.print.Pageable;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import skni.kamilG.skin_sensors_api.Exception.*;
-import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
+import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorMapper;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
@@ -52,7 +51,7 @@ public class SensorService implements ISensorService {
     log.debug("Getting sensor data for id: {} between {} and {}", sensorId, startDate, endDate);
 
     return sensorDataRepository
-        .findBySensor_SensorIdAndTimestampBetween(sensorId, startDate, endDate)
+        .findBySensorIdAndTimestampBetween(sensorId, startDate, endDate)
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
