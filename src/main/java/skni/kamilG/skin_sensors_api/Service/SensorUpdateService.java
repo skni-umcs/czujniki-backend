@@ -45,7 +45,7 @@ public class SensorUpdateService implements ISensorUpdateService {
 
   @Override
   @SneakyThrows(SensorUpdateException.class)
-  public void performSensorDataUpdate() {
+  public void performSensorDataUpdate() { // TODO handling exception when updating
     log.info("Starting sensor data update process");
 
     List<Sensor> sensors = sensorRepository.findByStatus(SensorStatus.ONLINE);
