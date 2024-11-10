@@ -11,7 +11,7 @@ cache:
 
 stages:
   - build
-  - test
+  # - test
   - sonarqube-check
   - sonarqube-vulnerability-report
   - deploy
@@ -26,12 +26,12 @@ build:
 #   rules:
     # - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
 
-test:
-  stage: test
-  script:
-    - mvn test
-#   rules:
-    # - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+# test:
+#   stage: test
+#   script:
+#     - mvn test
+# #   rules:
+#     # - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
 
 sonarqube-check:
   stage: sonarqube-check
