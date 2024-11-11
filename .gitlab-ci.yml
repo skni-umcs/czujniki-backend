@@ -1,0 +1,70 @@
+image: maven:3-eclipse-temurin-17
+
+variables:
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Cache location for SonarQube analysis
+  GIT_DEPTH: "0"  # Full history required by SonarQube
+  MAVEN_CLI_OPTS: "-B -DskipTests"  # Optional: Skips tests to speed up stages that don't require them
+
+cache:
+  paths:
+    - .m2/repository  # Cache Maven dependencies
+
+stages:
+  - build
+  # - test
+  - sonarqube-check
+  - sonarqube-vulnerability-report
+  - deploy
+
+before_script:
+  - echo "Starting CI Pipeline for Maven Spring Boot project"
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean compile
+#   rules:
+    # - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+
+# test:
+#   stage: test
+#   script:
+#     - mvn test
+# #   rules:
+#     # - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+
+sonarqube-check:
+  stage: sonarqube-check
+  script: 
+    - mvn -DskipTests verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"'
+
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
+  script:
+    - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=czujniki_Backend_ab70ca1d-4bf3-4d66-87fe-12e2643755df&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"'
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying application..."
+    - mvn $MAVEN_CLI_OPTS clean package
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+
+#   environment:
+    # name: production
+    # url: https://your-production-url.com
+  when: manual  # Optional: Require manual approval for production deployment

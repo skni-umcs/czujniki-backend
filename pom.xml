@@ -28,6 +28,9 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <sonar.projectKey>czujniki_Backend_ab70ca1d-4bf3-4d66-87fe-12e2643755df</sonar.projectKey>
+        <sonar.projectName>Backend</sonar.projectName>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
     <dependencies>
         <dependency>
