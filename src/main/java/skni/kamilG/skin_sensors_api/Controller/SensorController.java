@@ -17,7 +17,6 @@ import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
-import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -26,8 +25,6 @@ import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 public class SensorController {
 
   private final ISensorService sensorService;
-
-  private final ISensorUpdateService sensorUpdateService;
 
   @GetMapping("/{id}")
   public ResponseEntity<Sensor> getSensorById(@PathVariable Short id) {

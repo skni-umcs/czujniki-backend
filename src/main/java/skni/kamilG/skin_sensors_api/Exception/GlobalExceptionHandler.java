@@ -39,4 +39,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
   }
+
+  @ExceptionHandler(SensorNotFoundException.class)
+  public ResponseEntity<ExceptionInfo> handleSensorUpdateException(
+      Exception ex, WebRequest request) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+  }
 }
