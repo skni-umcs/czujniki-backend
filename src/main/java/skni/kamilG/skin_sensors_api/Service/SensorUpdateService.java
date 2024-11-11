@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,13 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.SensorStatus;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 
-@Service
 @Slf4j
+@Service
 public class SensorUpdateService implements ISensorUpdateService {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
 
-  @Autowired
   public SensorUpdateService(
       SensorRepository sensorRepository, SensorDataRepository sensorDataRepository) {
     this.sensorRepository = sensorRepository;
@@ -31,7 +29,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   }
 
   @Async
-  @Scheduled(fixedRate = 10000) // TODO to discuss with firmware team
+  @Scheduled(fixedRate = 40000) // TODO to discuss with firmware team
   @Override
   @SneakyThrows(Exception.class)
   public void updateSensorsData() {

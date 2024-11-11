@@ -1,11 +1,10 @@
 package skni.kamilG.skin_sensors_api.Service;
 
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import skni.kamilG.skin_sensors_api.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Exception.SensorAlreadyExistsException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;

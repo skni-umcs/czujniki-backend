@@ -2,11 +2,11 @@ package skni.kamilG.skin_sensors_api.Controller;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -66,7 +66,7 @@ public class SensorController {
     return ResponseEntity.ok(sensorService.getSensorsByFaculty(facultyName));
   }
 
-  @GetMapping("/faculty/{facultyName}")
+  @GetMapping("/faculty/{facultyName}/data")
   public ResponseEntity<Page<SensorData>> getAllSensorsByFacultyData(
       @PathVariable String facultyName,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
