@@ -10,13 +10,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
+import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -26,14 +29,26 @@ public class SensorController {
 
   private final ISensorService sensorService;
 
+  private final ISensorUpdateService sensorUpdateService;
+
   @GetMapping("/{id}")
   public ResponseEntity<Sensor> getSensorById(@PathVariable Short id) {
     return ResponseEntity.ok(sensorService.getSensorById(id));
   }
 
+  @GetMapping(value = "/{sensorId}/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<Sensor> streamSingleSensor(@PathVariable Short sensorId) {
+    return sensorUpdateService.getSensorUpdates(sensorId);
+  }
+
   @GetMapping
   public ResponseEntity<List<Sensor>> getAllSensors() {
     return ResponseEntity.ok(sensorService.getAllSensors());
+  }
+
+  @GetMapping(value = "/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<Sensor> streamAllSensorsUpdates() {
+    return sensorUpdateService.getAllSensorsUpdates();
   }
 
   @GetMapping("/{id}/data")

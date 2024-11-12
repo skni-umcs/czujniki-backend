@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 import skni.kamilG.skin_sensors_api.Exception.SensorUpdateException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
@@ -22,19 +24,22 @@ import skni.kamilG.skin_sensors_api.Repository.SensorUpdateFailureRepository;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class SensorUpdateService implements ISensorUpdateService {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
   private final SensorUpdateFailureRepository sensorUpdateFailureRepository;
+  private final Sinks.Many<Sensor> sensorUpdatesSink =
+      Sinks.many().multicast().onBackpressureBuffer();
 
-  @Async
-  @Scheduled(fixedRate = 40000) // TODO to discuss with firmware team
-  @Override
-  @SneakyThrows(Exception.class)
-  public void updateSensorsData() {
-    performSensorDataUpdate();
+  @Autowired
+  public SensorUpdateService(
+      SensorRepository sensorRepository,
+      SensorDataRepository sensorDataRepository,
+      SensorUpdateFailureRepository sensorUpdateFailureRepository) {
+    this.sensorRepository = sensorRepository;
+    this.sensorDataRepository = sensorDataRepository;
+    this.sensorUpdateFailureRepository = sensorUpdateFailureRepository;
   }
 
   @Override
@@ -42,11 +47,21 @@ public class SensorUpdateService implements ISensorUpdateService {
     performSensorDataUpdate();
   }
 
+  @Async
+  @Scheduled(fixedRate = 40000) // TODO to discuss with firmware team
+  @Override
+  @SneakyThrows(Exception.class)
+  public void updateSensorsData() {
+    List<Sensor> updatedSensors = performSensorDataUpdate();
+    updatedSensors.forEach(sensorUpdatesSink::tryEmitNext);
+  }
+
   @Override
   @SneakyThrows(SensorUpdateException.class)
-  public void performSensorDataUpdate() {
+  public List<Sensor> performSensorDataUpdate() {
     log.info("Starting sensor data update process");
 
+    List<Sensor> correctlyUpdatedSensors = new ArrayList<>();
     List<Sensor> sensors = sensorRepository.findByStatus(SensorStatus.ONLINE);
     List<Short> sensorIds = sensors.stream().map(Sensor::getId).collect(Collectors.toList());
     List<SensorUpdateFailure> updateFailures = new ArrayList<>();
@@ -63,6 +78,7 @@ public class SensorUpdateService implements ISensorUpdateService {
         if (latestSensorData != null) {
           if (latestSensorData.getTimestamp().isAfter(thresholdTime)) {
             sensor.setCurrentData(latestSensorData);
+            correctlyUpdatedSensors.add(sensor);
             log.debug("Updated sensor {} with latest data", sensor.getId());
           } else {
             String warning =
@@ -94,5 +110,14 @@ public class SensorUpdateService implements ISensorUpdateService {
       log.warn("{} sensor update failures recorded", updateFailures.size());
     }
     log.info("Sensor data update process completed");
+    return correctlyUpdatedSensors;
+  }
+
+  public Flux<Sensor> getAllSensorsUpdates() {
+    return sensorUpdatesSink.asFlux();
+  }
+
+  public Flux<Sensor> getSensorUpdates(Short sensorId) {
+    return getAllSensorsUpdates().filter(sensor -> sensor.getId().equals(sensorId));
   }
 }

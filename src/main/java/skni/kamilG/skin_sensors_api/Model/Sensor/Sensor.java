@@ -1,6 +1,7 @@
 package skni.kamilG.skin_sensors_api.Model.Sensor;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +15,7 @@ import skni.kamilG.skin_sensors_api.Model.Location;
 @Setter
 @Entity
 @Table(name = "sensors")
-public class Sensor {
+public class Sensor implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
