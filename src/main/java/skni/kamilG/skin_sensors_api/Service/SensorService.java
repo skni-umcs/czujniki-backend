@@ -1,6 +1,5 @@
 package skni.kamilG.skin_sensors_api.Service;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -108,20 +107,20 @@ public class SensorService implements ISensorService {
 
   @Transactional
   @Override
-  public Sensor createSensor(@Valid @NotNull SensorDTO createSensorDTO) {
+  public Sensor createSensor(@Validated SensorDTO createSensorDTO) {
     log.debug("Creating new sensor");
     return sensorRepository.save(sensorMapper.createSensorDtoToSensor(createSensorDTO));
   }
 
   @Transactional
   @Override
-  public Sensor updateSensor(@Valid @NotNull SensorDTO sensor, @Valid @NotNull Short id) {
+  public Sensor updateSensor(@Validated SensorDTO sensor, @NotNull Short id) {
     log.debug("Updating sensor with id: {}", id);
 
     Sensor existingSensor = getSensorById(id);
 
-    existingSensor.setLocation(sensor.getLocation());
-    existingSensor.setStatus(sensor.getStatus());
+    existingSensor.setLocation(sensor.location());
+    existingSensor.setStatus(sensor.status());
 
     return sensorRepository.save(existingSensor);
   }

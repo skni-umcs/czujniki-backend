@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
@@ -38,16 +39,16 @@ public class AdminController {
   @PatchMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> updateSensor(
-      @RequestBody @Valid SensorDTO updatedDTO, @PathVariable Short id) {
-    sensorService.updateSensor(updatedDTO, id);
-    return ResponseEntity.noContent().build();
+      @RequestBody @Validated SensorDTO updatedDTO, @PathVariable Short id) {
+    Sensor updatedSensor = sensorService.updateSensor(updatedDTO, id);
+    return ResponseEntity.ok(updatedSensor);
   }
 
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> deleteSensor(@PathVariable Short id) {
     sensorService.deleteSensor(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(HttpStatus.OK);
   }
 
   @PostMapping("/all")
