@@ -16,9 +16,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorDataResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
-import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
 import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
@@ -53,7 +53,7 @@ public class SensorController {
   }
 
   @GetMapping("/{id}/data")
-  public ResponseEntity<List<SensorData>> getSensorDataById(
+  public ResponseEntity<List<SensorDataResponse>> getSensorDataById(
       @PathVariable Short id,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
@@ -63,15 +63,14 @@ public class SensorController {
   }
 
   @GetMapping("/data")
-  public ResponseEntity<Page<SensorData>> getAllSensorData(
+  public ResponseEntity<Page<SensorDataResponse>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    Page<SensorData> sensorDataPage = sensorService.getAllSensorsData(startDate, endDate, pageable);
-    return ResponseEntity.ok(sensorDataPage);
+    return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDate, pageable));
   }
 
   @GetMapping("/faculty/{facultyName}")
@@ -81,7 +80,7 @@ public class SensorController {
   }
 
   @GetMapping("/faculty/{facultyName}/data")
-  public ResponseEntity<Page<SensorData>> getAllSensorsByFacultyData(
+  public ResponseEntity<Page<SensorDataResponse>> getAllSensorsByFacultyData(
       @PathVariable String facultyName,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
@@ -90,9 +89,8 @@ public class SensorController {
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
     validateDateRange(startDate, endDate);
-    Page<SensorData> sensorDataPage =
-        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate, pageable);
-    return ResponseEntity.ok(sensorDataPage);
+    return ResponseEntity.ok(
+        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate, pageable));
   }
 
   private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {

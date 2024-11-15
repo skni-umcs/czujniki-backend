@@ -15,11 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import skni.kamilG.skin_sensors_api.Exception.*;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorDataResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
+import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorDataMapper;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorMapper;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
-import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 
@@ -33,6 +34,7 @@ public class SensorService implements ISensorService {
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
   private final SensorMapper sensorMapper;
+  private final SensorDataMapper sensorDataMapper;
 
   @Override
   public SensorResponse getSensorById(@NotNull Short sensorId) {
@@ -44,7 +46,7 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public List<SensorData> getSensorDataById(
+  public List<SensorDataResponse> getSensorDataById(
       @NotNull Short sensorId,
       @NotNull @PastOrPresent LocalDateTime startDate,
       @NotNull @PastOrPresent LocalDateTime endDate) {
@@ -54,6 +56,11 @@ public class SensorService implements ISensorService {
 
     return sensorDataRepository
         .findBySensorIdAndTimestampBetween(sensorId, startDate, endDate)
+        .map(
+            data ->
+                data.stream()
+                    .map(sensorDataMapper::createSensorDataToSensorDataResponse)
+                    .collect(Collectors.toList()))
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
@@ -66,7 +73,7 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public Page<SensorData> getAllSensorsData(
+  public Page<SensorDataResponse> getAllSensorsData(
       @NotNull @PastOrPresent LocalDateTime startDate,
       @NotNull @PastOrPresent LocalDateTime endDate,
       @NotNull Pageable pageable) {
@@ -76,6 +83,7 @@ public class SensorService implements ISensorService {
 
     return sensorDataRepository
         .findByTimestampBetween(startDate, endDate, pageable)
+        .map(page -> page.map(sensorDataMapper::createSensorDataToSensorDataResponse))
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
@@ -94,7 +102,7 @@ public class SensorService implements ISensorService {
   }
 
   @Override
-  public Page<SensorData> getSensorsDataByFaculty(
+  public Page<SensorDataResponse> getSensorsDataByFaculty(
       @NotNull @NotBlank String facultyName,
       @NotNull @PastOrPresent LocalDateTime startDate,
       @NotNull @PastOrPresent LocalDateTime endDate,
@@ -108,6 +116,7 @@ public class SensorService implements ISensorService {
 
     return sensorDataRepository
         .findBySensorInAndTimestampBetween(sensors, startDate, endDate, pageable)
+        .map(page -> page.map(sensorDataMapper::createSensorDataToSensorDataResponse))
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
