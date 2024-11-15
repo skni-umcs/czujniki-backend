@@ -7,24 +7,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import skni.kamilG.skin_sensors_api.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Exception.SensorAlreadyExistsException;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorRequest;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
-import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 
 public interface ISensorService {
 
   // Main Functionalities
-  Sensor getSensorById(Short sensorId);
+  SensorResponse getSensorById(Short sensorId);
 
   List<SensorData> getSensorDataById(
       Short sensorId, LocalDateTime startDate, LocalDateTime endDate);
 
-  List<Sensor> getAllSensors();
+  List<SensorResponse> getAllSensors();
 
   Page<SensorData> getAllSensorsData(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
   @SneakyThrows(NoSensorsForFacultyException.class)
-  List<Sensor> getSensorsByFaculty(String facultyName);
+  List<SensorResponse> getSensorsByFaculty(String facultyName);
 
   @SneakyThrows(NoSensorsForFacultyException.class)
   Page<SensorData> getSensorsDataByFaculty(
@@ -32,9 +33,9 @@ public interface ISensorService {
 
   // Admin Functionalities
   @SneakyThrows(SensorAlreadyExistsException.class)
-  Sensor createSensor(SensorDTO sensor);
+  Sensor createSensor(SensorRequest sensor);
 
-  Sensor updateSensor(SensorDTO sensor, Short sensorId);
+  SensorResponse updateSensor(SensorRequest sensor, Short sensorId);
 
   void deleteSensor(Short sensorId);
 }

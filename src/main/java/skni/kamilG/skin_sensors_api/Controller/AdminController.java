@@ -9,8 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
-import skni.kamilG.skin_sensors_api.Model.Sensor.SensorDTO;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
 import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
@@ -24,7 +24,7 @@ public class AdminController {
 
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<SensorDTO> createSensor(@RequestBody @Valid SensorDTO request) {
+  public ResponseEntity<SensorRequest> createSensor(@RequestBody @Valid SensorRequest request) {
     Sensor createdSensor = sensorService.createSensor(request);
 
     URI location =
@@ -39,9 +39,8 @@ public class AdminController {
   @PatchMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> updateSensor(
-      @RequestBody @Validated SensorDTO updatedDTO, @PathVariable Short id) {
-    Sensor updatedSensor = sensorService.updateSensor(updatedDTO, id);
-    return ResponseEntity.ok(updatedSensor);
+      @RequestBody @Validated SensorRequest updatedDTO, @PathVariable Short id) {
+    return ResponseEntity.ok(sensorService.updateSensor(updatedDTO, id));
   }
 
   @DeleteMapping("/{id}")

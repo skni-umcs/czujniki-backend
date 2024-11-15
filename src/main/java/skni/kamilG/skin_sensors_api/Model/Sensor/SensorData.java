@@ -24,12 +24,12 @@ public class SensorData {
 
   private LocalDateTime timestamp;
 
-  private short temperature;
+  private Short temperature;
 
-  private long humidity;
+  private Integer humidity;
 
-  private long pressure;
+  private Integer pressure;
 
   @Column(name = "gas_resistance", nullable = false)
-  private long gasResistance;
+  private int gasResistance;
 }

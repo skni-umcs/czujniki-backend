@@ -25,13 +25,13 @@ public class Sensor implements Serializable {
 
   private LocalDateTime latestDataUpdate;
 
-  @Transient private short currentTemperature;
+  private Short currentTemperature;
 
-  @Transient private long currentHumidity;
+  private Integer currentHumidity;
 
-  @Transient private long currentPressure;
+  private Integer currentPressure;
 
-  @Transient private long currentGasResistance;
+  private Integer currentGasResistance;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
@@ -40,7 +40,7 @@ public class Sensor implements Serializable {
   @OneToMany(
       mappedBy = "sensor",
       cascade = CascadeType.ALL,
-      orphanRemoval = true,
+      orphanRemoval = false,
       fetch = FetchType.LAZY)
   private Set<SensorData> sensorData = new HashSet<>();
 

@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
+import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorData;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
@@ -32,7 +33,7 @@ public class SensorController {
   private final ISensorUpdateService sensorUpdateService;
 
   @GetMapping("/{id}")
-  public ResponseEntity<Sensor> getSensorById(@PathVariable Short id) {
+  public ResponseEntity<SensorResponse> getSensorById(@PathVariable Short id) {
     return ResponseEntity.ok(sensorService.getSensorById(id));
   }
 
@@ -42,7 +43,7 @@ public class SensorController {
   }
 
   @GetMapping
-  public ResponseEntity<List<Sensor>> getAllSensors() {
+  public ResponseEntity<List<SensorResponse>> getAllSensors() {
     return ResponseEntity.ok(sensorService.getAllSensors());
   }
 
@@ -74,7 +75,8 @@ public class SensorController {
   }
 
   @GetMapping("/faculty/{facultyName}")
-  public ResponseEntity<List<Sensor>> getAllSensorsByFaculty(@PathVariable String facultyName) {
+  public ResponseEntity<List<SensorResponse>> getAllSensorsByFaculty(
+      @PathVariable String facultyName) {
     return ResponseEntity.ok(sensorService.getSensorsByFaculty(facultyName));
   }
 
