@@ -18,7 +18,6 @@ import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorDataResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
-import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 import skni.kamilG.skin_sensors_api.Service.ISensorService;
 import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
@@ -38,7 +37,7 @@ public class SensorController {
   }
 
   @GetMapping(value = "/{sensorId}/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<Sensor> streamSingleSensor(@PathVariable Short sensorId) {
+  public Flux<SensorResponse> streamSingleSensor(@PathVariable Short sensorId) {
     return sensorUpdateService.getSensorUpdates(sensorId);
   }
 
@@ -48,7 +47,7 @@ public class SensorController {
   }
 
   @GetMapping(value = "/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<Sensor> streamAllSensorsUpdates() {
+  public Flux<SensorResponse> streamAllSensorsUpdates() {
     return sensorUpdateService.getAllSensorsUpdates();
   }
 

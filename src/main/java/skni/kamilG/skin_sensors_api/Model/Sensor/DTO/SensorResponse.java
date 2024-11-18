@@ -7,6 +7,7 @@ import skni.kamilG.skin_sensors_api.Model.Location;
 import skni.kamilG.skin_sensors_api.Model.Sensor.SensorStatus;
 
 public record SensorResponse(
+    @NotNull Short id, // TODO verify if its not leak
     @Validated SensorStatus status,
     @NotNull LocalDateTime latestDateUpdate,
     @NotNull Short temperature,
