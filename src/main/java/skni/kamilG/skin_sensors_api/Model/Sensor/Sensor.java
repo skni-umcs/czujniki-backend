@@ -2,6 +2,7 @@ package skni.kamilG.skin_sensors_api.Model.Sensor;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,24 +15,25 @@ import skni.kamilG.skin_sensors_api.Model.Location;
 @Getter
 @Setter
 @Entity
-@Table(name = "sensors")
+@Table(name = "sensor")
 public class Sensor implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Short id;
 
+  @Enumerated(EnumType.STRING)
   private SensorStatus status;
 
-  private LocalDateTime latestDataUpdate;
+  private LocalDateTime lastUpdate;
 
-  private Short currentTemperature;
+  private Short temperature;
 
-  private Integer currentHumidity;
+  private Integer humidity;
 
-  private Integer currentPressure;
+  private Integer pressure;
 
-  private Integer currentGasResistance;
+  private Integer gasResistance;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
@@ -40,15 +42,14 @@ public class Sensor implements Serializable {
   @OneToMany(
       mappedBy = "sensor",
       cascade = CascadeType.ALL,
-      orphanRemoval = false,
       fetch = FetchType.LAZY)
   private Set<SensorData> sensorData = new HashSet<>();
 
-  public void setCurrentData(SensorData latestSensorData) {
-    this.currentTemperature = latestSensorData.getTemperature();
-    this.currentHumidity = latestSensorData.getHumidity();
-    this.currentPressure = latestSensorData.getPressure();
-    this.currentGasResistance = latestSensorData.getGasResistance();
-    this.latestDataUpdate = LocalDateTime.now();
+  public void updateFromSensorData(SensorData latestSensorData, Clock clock) {
+    this.temperature = latestSensorData.getTemperature();
+    this.humidity = latestSensorData.getHumidity();
+    this.pressure = latestSensorData.getPressure();
+    this.gasResistance = latestSensorData.getGasResistance();
+    this.lastUpdate = LocalDateTime.now(clock);
   }
 }

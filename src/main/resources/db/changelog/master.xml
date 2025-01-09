@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <preConditions>
+        <runningAs username="kamil.golawski"/>
+    </preConditions>
+    <include file="db/changelog/2025/01/08-01-changelog.xml"/>
+    <include file="/db/data/location-init.sql"/>
+    <include file="/db/data/sensor-init.sql"/>
+
+</databaseChangeLog>

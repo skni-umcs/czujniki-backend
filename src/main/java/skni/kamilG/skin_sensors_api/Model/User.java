@@ -25,14 +25,14 @@ public class User {
 
   @ManyToMany
   @JoinTable(
-      name = "users_roles",
+      name = "user_role",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
   @ManyToMany
   @JoinTable(
-      name = "users_favorite_sensors",
+      name = "user_favorite_sensors",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "sensor_id"))
   private Set<Sensor> favoriteSensors = new HashSet<>();

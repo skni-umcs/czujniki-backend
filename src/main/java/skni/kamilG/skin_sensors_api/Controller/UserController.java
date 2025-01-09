@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ public class UserController {
   private final IUserService userService;
 
   @PostMapping("/me/favorites/{sensorId}")
-  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<Void> addFavoriteSensor(
       @PathVariable @NotNull Short sensorId, @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -31,7 +29,6 @@ public class UserController {
   }
 
   @DeleteMapping("/me/favorites/{sensorId}")
-  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<Void> removeFavoriteSensor(
       @PathVariable Short sensorId, @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -41,14 +38,12 @@ public class UserController {
   }
 
   @GetMapping("/me")
-  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
     User user = userService.getUserByUsername(userDetails.getUsername());
     return ResponseEntity.ok(user);
   }
 
   @GetMapping("/me/favorites")
-  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<List<SensorResponse>> getCurrentUserFavorites(
       @AuthenticationPrincipal UserDetails userDetails) {
     Long userId = userService.getUserIdByUsername(userDetails.getUsername());

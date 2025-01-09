@@ -1,13 +1,14 @@
 package skni.kamilG.skin_sensors_api.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,26 +27,15 @@ import skni.kamilG.skin_sensors_api.Repository.SensorUpdateFailureRepository;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class SensorUpdateService implements ISensorUpdateService {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
   private final SensorUpdateFailureRepository sensorUpdateFailureRepository;
-  private final Sinks.Many<SensorResponse> sensorUpdatesSink =
-      Sinks.many().multicast().onBackpressureBuffer(100); // TODO to discuss with team
+  private final Sinks.Many<SensorResponse> sensorUpdatesSink;
   private final SensorMapper sensorMapper;
-
-  @Autowired
-  public SensorUpdateService(
-      SensorRepository sensorRepository,
-      SensorDataRepository sensorDataRepository,
-      SensorUpdateFailureRepository sensorUpdateFailureRepository,
-      SensorMapper sensorMapper) {
-    this.sensorRepository = sensorRepository;
-    this.sensorDataRepository = sensorDataRepository;
-    this.sensorUpdateFailureRepository = sensorUpdateFailureRepository;
-    this.sensorMapper = sensorMapper;
-  }
+  private final Clock clock;
 
   @Override
   public void forceUpdateSensorsData() {
@@ -53,16 +43,14 @@ public class SensorUpdateService implements ISensorUpdateService {
   }
 
   @Async
-  @Scheduled(fixedRate = 40000) // TODO to discuss with firmware team
+  @Scheduled(fixedRate = 60000)
   @Override
-  @SneakyThrows(Exception.class)
   public void updateSensorsData() {
     List<SensorResponse> updatedSensors = performSensorDataUpdate();
     updatedSensors.forEach(sensorUpdatesSink::tryEmitNext);
   }
 
   @Override
-  @SneakyThrows(SensorUpdateException.class)
   public List<SensorResponse> performSensorDataUpdate() {
     log.info("Starting sensor data update process");
 
@@ -82,7 +70,7 @@ public class SensorUpdateService implements ISensorUpdateService {
 
   private List<Sensor> findOnlineSensors() {
     List<Sensor> sensors = sensorRepository.findByStatus(SensorStatus.ONLINE);
-    log.debug(
+    log.info(
         "Found {} online sensors with IDs: {}",
         sensors.size(),
         sensors.stream().map(Sensor::getId).collect(Collectors.toList()));
@@ -91,7 +79,9 @@ public class SensorUpdateService implements ISensorUpdateService {
 
   private Map<Short, SensorData> fetchLatestSensorData(List<Sensor> sensors) {
     List<Short> sensorIds = sensors.stream().map(Sensor::getId).collect(Collectors.toList());
-    return sensorDataRepository.findLatestDataBySensorIds(sensorIds);
+
+    return sensorDataRepository.findLatestDataBySensorIds(sensorIds).stream()
+        .collect(Collectors.toMap(data -> data.getSensor().getId(), Function.identity()));
   }
 
   private void processAndUpdateSensors(
@@ -99,7 +89,7 @@ public class SensorUpdateService implements ISensorUpdateService {
       Map<Short, SensorData> latestData,
       List<SensorResponse> updatedSensors,
       List<SensorUpdateFailure> updateFailures) {
-    LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(60);
+    LocalDateTime thresholdTime = LocalDateTime.now(clock).minusSeconds(60);
 
     for (Sensor sensor : sensors) {
       try {
@@ -142,8 +132,7 @@ public class SensorUpdateService implements ISensorUpdateService {
     log.warn(warning);
 
     sensor.setStatus(SensorStatus.ERROR);
-    updateFailures.add(
-        new SensorUpdateFailure(sensor.getId(), warning, LocalDateTime.now(), sensor));
+    updateFailures.add(new SensorUpdateFailure(LocalDateTime.now(clock), warning, sensor));
     sensorRepository.save(sensor);
   }
 
@@ -156,16 +145,15 @@ public class SensorUpdateService implements ISensorUpdateService {
     log.warn(warning);
 
     sensor.setStatus(SensorStatus.ERROR);
-    updateFailures.add(
-        new SensorUpdateFailure(sensor.getId(), warning, LocalDateTime.now(), sensor));
+    updateFailures.add(new SensorUpdateFailure(LocalDateTime.now(clock), warning, sensor));
     sensorRepository.save(sensor);
   }
 
   private void updateSensorSuccessfully(
       Sensor sensor, SensorData latestSensorData, List<SensorResponse> updatedSensors) {
-    sensor.setCurrentData(latestSensorData);
+    sensor.updateFromSensorData(latestSensorData, clock);
     updatedSensors.add(sensorMapper.createSensorToSensorResponse(sensor));
-    log.debug("Updated sensor {} with latest data", sensor.getId());
+    log.info("Updated sensor {} with latest data", sensor.getId());
     sensorRepository.save(sensor);
   }
 

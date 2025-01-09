@@ -30,6 +30,5 @@ public class SensorData {
 
   private Integer pressure;
 
-  @Column(name = "gas_resistance", nullable = false)
-  private int gasResistance;
+  private Integer gasResistance;
 }
