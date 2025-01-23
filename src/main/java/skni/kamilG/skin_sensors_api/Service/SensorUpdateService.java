@@ -54,13 +54,13 @@ public class SensorUpdateService implements ISensorUpdateService {
   public List<SensorResponse> performSensorDataUpdate() {
     log.info("Starting sensor data update process");
 
-    List<Sensor> onlineSensors = findOnlineSensors();
-    Map<Short, SensorData> latestData = fetchLatestSensorData(onlineSensors);
+    List<Sensor> sensorsToUpdate = findSensorsToUpdate();
+    Map<Short, SensorData> latestData = fetchLatestSensorData(sensorsToUpdate);
 
     List<SensorResponse> updatedSensors = new ArrayList<>();
     List<SensorUpdateFailure> updateFailures = new ArrayList<>();
 
-    processAndUpdateSensors(onlineSensors, latestData, updatedSensors, updateFailures);
+    processAndUpdateSensors(sensorsToUpdate, latestData, updatedSensors, updateFailures);
 
     handleUpdateFailures(updateFailures);
 
@@ -68,10 +68,10 @@ public class SensorUpdateService implements ISensorUpdateService {
     return updatedSensors;
   }
 
-  private List<Sensor> findOnlineSensors() {
-    List<Sensor> sensors = sensorRepository.findByStatus(SensorStatus.ONLINE);
+  private List<Sensor> findSensorsToUpdate() {
+    List<Sensor> sensors = sensorRepository.findByStatusNotOrderById(SensorStatus.OFFLINE);
     log.info(
-        "Found {} online sensors with IDs: {}",
+        "Found {} sensors to update with IDs: {}",
         sensors.size(),
         sensors.stream().map(Sensor::getId).collect(Collectors.toList()));
     return sensors;
@@ -95,7 +95,7 @@ public class SensorUpdateService implements ISensorUpdateService {
       try {
         processIndividualSensor(sensor, latestData, thresholdTime, updatedSensors, updateFailures);
       } catch (Exception e) {
-        log.error("Error updating sensor {} data", sensor.getId(), e);
+        log.error("Error updating sensor id: {} data", sensor.getId(), e);
         throw new SensorUpdateException(e);
       }
     }
@@ -111,12 +111,11 @@ public class SensorUpdateService implements ISensorUpdateService {
 
     if (latestSensorData == null) {
       handleMissingSensorData(sensor, updateFailures);
-      return;
-    }
-
-    if (isDataOutdated(latestSensorData, thresholdTime)) {
-      handleOutdatedSensorData(sensor, latestSensorData, updateFailures);
-      return;
+    } else {
+      if (isDataOutdated(latestSensorData, thresholdTime)) {
+        handleOutdatedSensorData(sensor, latestSensorData, updateFailures);
+        return;
+      }
     }
 
     updateSensorSuccessfully(sensor, latestSensorData, updatedSensors);
@@ -153,7 +152,7 @@ public class SensorUpdateService implements ISensorUpdateService {
       Sensor sensor, SensorData latestSensorData, List<SensorResponse> updatedSensors) {
     sensor.updateFromSensorData(latestSensorData, clock);
     updatedSensors.add(sensorMapper.createSensorToSensorResponse(sensor));
-    log.info("Updated sensor {} with latest data", sensor.getId());
+    log.info("Updated sensor id: {} with latest data", sensor.getId());
     sensorRepository.save(sensor);
   }
 

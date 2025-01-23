@@ -8,7 +8,7 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.SensorStatus;
 
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Short> {
-  List<Sensor> findByStatus(SensorStatus status);
+  List<Sensor> findByStatusNotOrderById(SensorStatus status);
 
   List<Sensor> findByLocationFacultyName(String facultyName);
 
