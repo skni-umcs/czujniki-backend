@@ -42,7 +42,7 @@ public class SensorUpdateService implements ISensorUpdateService {
     performSensorDataUpdate();
   }
 
-  @Async
+  @Async("virtualThreadExecutor")
   @Scheduled(fixedRate = 60000)
   @Override
   public void updateSensorsData() {
@@ -62,7 +62,7 @@ public class SensorUpdateService implements ISensorUpdateService {
 
     processAndUpdateSensors(sensorsToUpdate, latestData, updatedSensors, updateFailures);
 
-    handleUpdateFailures(updateFailures);
+    saveUpdateFailures(updateFailures);
 
     log.info("Sensor data update process completed");
     return updatedSensors;
@@ -142,7 +142,6 @@ public class SensorUpdateService implements ISensorUpdateService {
             "Sensor %d has outdated data (last updated at %s), setting status to ERROR",
             sensor.getId(), latestSensorData.getTimestamp());
     log.warn(warning);
-
     sensor.setStatus(SensorStatus.ERROR);
     updateFailures.add(new SensorUpdateFailure(LocalDateTime.now(clock), warning, sensor));
     sensorRepository.save(sensor);
@@ -151,12 +150,20 @@ public class SensorUpdateService implements ISensorUpdateService {
   private void updateSensorSuccessfully(
       Sensor sensor, SensorData latestSensorData, List<SensorResponse> updatedSensors) {
     sensor.updateFromSensorData(latestSensorData, clock);
+    if (sensor.getStatus() == SensorStatus.ERROR) {
+      log.info("Sensor id: {} has recovered from error state", sensor.getId());
+      SensorUpdateFailure tmp =
+          sensorUpdateFailureRepository.getBySensorIdAndResolvedTimeIsNull(sensor.getId());
+      tmp.setResolvedTime(LocalDateTime.now(clock));
+      sensorUpdateFailureRepository.save(tmp);
+    }
+    sensor.setStatus(SensorStatus.ONLINE);
     updatedSensors.add(sensorMapper.createSensorToSensorResponse(sensor));
     log.info("Updated sensor id: {} with latest data", sensor.getId());
     sensorRepository.save(sensor);
   }
 
-  private void handleUpdateFailures(List<SensorUpdateFailure> updateFailures) {
+  private void saveUpdateFailures(List<SensorUpdateFailure> updateFailures) {
     if (!updateFailures.isEmpty()) {
       sensorUpdateFailureRepository.saveAll(updateFailures);
       log.warn("{} sensor update failures recorded", updateFailures.size());

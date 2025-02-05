@@ -1,0 +1,14 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1736355579439-1" author="kamilgolawski">
+        <addColumn tableName="sensor_update_failure">
+            <column name="resolved_time" type="DATETIME"/>
+        </addColumn>
+        <renameColumn tableName="sensor_update_failure" oldColumnName="failure_time" newColumnName="issued_time"
+                      columnDataType="DATETIME"/>
+    </changeSet>
+</databaseChangeLog>

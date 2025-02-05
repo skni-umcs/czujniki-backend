@@ -22,7 +22,7 @@ import skni.kamilG.skin_sensors_api.Service.ISensorService;
 import skni.kamilG.skin_sensors_api.Service.ISensorUpdateService;
 
 @RestController
-@RequestMapping("/api/sensors")
+@RequestMapping("/api/sensor")
 @Validated
 @RequiredArgsConstructor
 public class SensorController {
@@ -41,7 +41,7 @@ public class SensorController {
     return sensorUpdateService.getSensorUpdates(sensorId);
   }
 
-  @GetMapping
+  @GetMapping("/all")
   public ResponseEntity<List<SensorResponse>> getAllSensors() {
     return ResponseEntity.ok(sensorService.getAllSensors());
   }
