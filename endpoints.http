@@ -1,0 +1,10 @@
+###
+GET http://localhost:8080/api/sensor/1
+
+###
+GET http://localhost:8080/api/sensor/all
+
+###
+GET http://localhost:8080/api/sensor/data?
+    startDate={{$random.alphanumeric(8)}}&
+    endDate={{$random.alphanumeric(8)}}

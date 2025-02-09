@@ -3,6 +3,7 @@ version: '3.8'
 services:
   postgres-db-local:
     image: 'postgres:latest'
+    container_name: postgres-db
     environment:
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=kamil.golawski
@@ -11,6 +12,28 @@ services:
       - '34250:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb_data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminadmin
+      - DOCKER_INFLUXDB_INIT_ORG=SKNI
+      - DOCKER_INFLUXDB_INIT_BUCKET=czujniki
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=o3v/C8YbMi628WipNnPABI4KGbJl6h7f2n30SG/o
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
 volumes:
   pgdata:

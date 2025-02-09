@@ -7,7 +7,7 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.SensorStatus;
 public record SensorResponse(
     Short id,
     SensorStatus status,
-    LocalDateTime latestDateUpdate,
+    LocalDateTime lastUpdate,
     Short temperature,
     Integer humidity,
     Integer pressure,

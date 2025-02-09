@@ -36,6 +36,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   private final Sinks.Many<SensorResponse> sensorUpdatesSink;
   private final SensorMapper sensorMapper;
   private final Clock clock;
+  private final InfluxService influxService;
 
   @Override
   public void forceUpdateSensorsData() {
@@ -43,7 +44,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   }
 
   @Async("virtualThreadExecutor")
-  @Scheduled(fixedRate = 60000)
+  @Scheduled(fixedRate = 30000)
   @Override
   public void updateSensorsData() {
     List<SensorResponse> updatedSensors = performSensorDataUpdate();
@@ -53,6 +54,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   @Override
   public List<SensorResponse> performSensorDataUpdate() {
     log.info("Starting sensor data update process");
+    influxService.fetchLatestData();
 
     List<Sensor> sensorsToUpdate = findSensorsToUpdate();
     Map<Short, SensorData> latestData = fetchLatestSensorData(sensorsToUpdate);
