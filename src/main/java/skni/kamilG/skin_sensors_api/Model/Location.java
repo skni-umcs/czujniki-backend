@@ -17,4 +17,5 @@ public class Location {
   private double latitude;
   private double longitude;
   private String facultyName;
+  private String facultyAbbreviation;
 }

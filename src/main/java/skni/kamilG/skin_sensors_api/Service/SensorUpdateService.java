@@ -44,7 +44,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   }
 
   @Async("virtualThreadExecutor")
-  @Scheduled(fixedRate = 30000)
+  @Scheduled(fixedRate = 60000)
   @Override
   public void updateSensorsData() {
     List<SensorResponse> updatedSensors = performSensorDataUpdate();

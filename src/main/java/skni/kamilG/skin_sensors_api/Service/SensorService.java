@@ -82,7 +82,7 @@ public class SensorService implements ISensorService {
   @SneakyThrows(NoSensorsForFacultyException.class)
   public List<SensorResponse> getSensorsByFaculty(String facultyName) {
     log.debug("Getting sensors for faculty: {}", facultyName);
-    List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
+    List<Sensor> sensors = sensorRepository.findByLocationFacultyAbbreviation(facultyName);
 
     if (sensors.isEmpty()) {
       throw new NoSensorsForFacultyException(facultyName);
@@ -145,7 +145,7 @@ public class SensorService implements ISensorService {
   @SneakyThrows(NoSensorsForFacultyException.class)
   private List<Sensor> fetchSensorsByFaculty(String facultyName) {
     log.debug("Internal getting sensors for faculty: {}", facultyName);
-    List<Sensor> sensors = sensorRepository.findByLocationFacultyName(facultyName);
+    List<Sensor> sensors = sensorRepository.findByLocationFacultyAbbreviation(facultyName);
 
     if (sensors.isEmpty()) {
       throw new NoSensorsForFacultyException(facultyName);

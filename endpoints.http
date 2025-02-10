@@ -5,6 +5,20 @@ GET http://localhost:8080/api/sensor/1
 GET http://localhost:8080/api/sensor/all
 
 ###
-GET http://localhost:8080/api/sensor/data?
-    startDate={{$random.alphanumeric(8)}}&
-    endDate={{$random.alphanumeric(8)}}
+GET http://localhost:8080/api/sensor/1/live
+
+###
+GET http://localhost:8080/api/sensor/all/live
+
+###
+GET http://localhost:8080/api/sensor/1/data?startDate=2025-02-10T20:50:00&endDate=2025-02-10T21:00:00&page=0&size=8
+
+###
+GET http://localhost:8080/api/sensor/data?startDate=2025-02-10T20:50:00&endDate=2025-02-10T21:00:00&page=0&size=8
+
+###
+GET http://localhost:8080/api/sensor/faculty/MFI
+
+###
+GET http://localhost:8080/api/sensor/faculty/WPIA/data?startDate=2025-02-10T20:50:00&endDate=2025-02-10T21:00:00&page=0&
+    size=8

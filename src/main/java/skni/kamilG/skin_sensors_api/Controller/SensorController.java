@@ -36,17 +36,17 @@ public class SensorController {
     return ResponseEntity.ok(sensorService.getSensorById(id));
   }
 
-  @GetMapping(value = "/{sensorId}/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<SensorResponse> streamSingleSensor(@PathVariable Short sensorId) {
-    return sensorUpdateService.getSensorUpdates(sensorId);
-  }
-
   @GetMapping("/all")
   public ResponseEntity<List<SensorResponse>> getAllSensors() {
     return ResponseEntity.ok(sensorService.getAllSensors());
   }
 
-  @GetMapping(value = "/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @GetMapping(value = "/{sensorId}/live", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<SensorResponse> streamSingleSensor(@PathVariable Short sensorId) {
+    return sensorUpdateService.getSensorUpdates(sensorId);
+  }
+
+  @GetMapping(value = "/all/live", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<SensorResponse> streamAllSensorsUpdates() {
     return sensorUpdateService.getAllSensorsUpdates();
   }
@@ -61,7 +61,7 @@ public class SensorController {
     return ResponseEntity.ok(sensorService.getSensorDataById(id, startDate, endDate));
   }
 
-  @GetMapping("/data")
+  @GetMapping("/all/data")
   public ResponseEntity<Page<SensorDataResponse>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,

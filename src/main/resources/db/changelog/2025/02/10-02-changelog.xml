@@ -1,0 +1,36 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1739223645331-1" author="kamilgolawski">
+        <addColumn tableName="location">
+            <column name="faculty_abbreviation" type="VARCHAR(10)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1739223645333-1" author="kamilgolawski">
+        <update tableName="location">
+            <column name="faculty_abbreviation" value="WPIA"/>
+            <where>faculty_name = 'Wydział Prawa i Administracji'</where>
+        </update>
+        <update tableName="location">
+            <column name="faculty_abbreviation" value="MFI"/>
+            <where>faculty_name = 'Wydział Matematyki, Fizyki i Informatyki'</where>
+        </update>
+    </changeSet>
+    <changeSet id="1739223645333-2" author="kamilgolawski">
+        <update tableName="location">
+            <column name="faculty_abbreviation" value="BG UMCS"/>
+            <where>faculty_name = 'Biblioteka Główna UMCS'</where>
+        </update>
+        <update tableName="location">
+            <column name="faculty_abbreviation" value="WCHE"/>
+            <where>faculty_name = 'Wydział Chemii'</where>
+        </update>
+        <update tableName="location">
+            <column name="faculty_abbreviation" value="WFil"/>
+            <where>faculty_name = 'Wydział Filologiczny'</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>
