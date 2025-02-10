@@ -1,5 +1,6 @@
 version: '3.8'
 
+#docker compose to dev app locally
 services:
   postgres-db-local:
     image: 'postgres:latest'
@@ -38,3 +39,4 @@ services:
 
 volumes:
   pgdata:
+
