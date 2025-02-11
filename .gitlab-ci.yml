@@ -20,7 +20,6 @@ docker_build:
     - ci-test
 deploy:
   stage: deploy
-  when: manual
   trigger:
     project: "czujniki/infra"
     branch: "main"
