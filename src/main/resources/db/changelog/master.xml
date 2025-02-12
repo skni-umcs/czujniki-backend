@@ -6,7 +6,7 @@
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
     <preConditions>
-        <runningAs username="kamil.golawski"/>
+        <runningAs username="${DB_USERNAME}"/>
     </preConditions>
     <include file="db/changelog/2025/01/08-01-changelog.xml"/>
     <include file="/db/data/location-init.sql"/>
