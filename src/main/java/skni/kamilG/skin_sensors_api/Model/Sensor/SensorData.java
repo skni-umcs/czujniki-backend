@@ -30,6 +30,4 @@ public class SensorData {
   private Integer humidity;
 
   private Integer pressure;
-
-  private Integer gasResistance;
 }

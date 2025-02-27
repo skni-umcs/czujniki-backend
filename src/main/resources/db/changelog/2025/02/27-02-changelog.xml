@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="drop_gas_resistance_columns" author="kamilgolawski">
+
+        <dropColumn tableName="sensor_data">
+            <column name="gas_resistance"/>
+        </dropColumn>
+
+        <dropColumn tableName="sensor">
+            <column name="gas_resistance"/>
+        </dropColumn>
+    </changeSet>
+</databaseChangeLog>

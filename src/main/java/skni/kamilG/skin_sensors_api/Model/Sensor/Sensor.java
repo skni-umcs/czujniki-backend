@@ -33,23 +33,17 @@ public class Sensor implements Serializable {
 
   private Integer pressure;
 
-  private Integer gasResistance;
-
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private Location location;
 
-  @OneToMany(
-      mappedBy = "sensor",
-      cascade = CascadeType.ALL,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Set<SensorData> sensorData = new HashSet<>();
 
   public void updateFromSensorData(SensorData latestSensorData, Clock clock) {
     this.temperature = latestSensorData.getTemperature();
     this.humidity = latestSensorData.getHumidity();
     this.pressure = latestSensorData.getPressure();
-    this.gasResistance = latestSensorData.getGasResistance();
     this.lastUpdate = LocalDateTime.now(clock);
   }
 }

@@ -34,10 +34,9 @@ public class InfluxReadingMapper {
         SensorData.builder()
             .sensor(sensor)
             .timestamp(zonedDateTime.toLocalDateTime())
-            .temperature(reading.getRawTemperature())
-            .humidity(reading.getRawHumidity())
-            .pressure(reading.getRawPressure())
-            .gasResistance(reading.getRawGasResistance())
+            .temperature(reading.getTemperature())
+            .humidity(reading.getHumidity())
+            .pressure(reading.getPressure())
             .build();
 
     return sensorDataRepository.save(sensorData);

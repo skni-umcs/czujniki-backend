@@ -16,11 +16,9 @@ public class InfluxReading {
 
   @Column private Short sensorId;
 
-  @Column private Short rawTemperature;
+  @Column private Short temperature;
 
-  @Column private Integer rawHumidity;
+  @Column private Integer humidity;
 
-  @Column private Integer rawPressure;
-
-  @Column private Integer rawGasResistance;
+  @Column private Integer pressure;
 }
