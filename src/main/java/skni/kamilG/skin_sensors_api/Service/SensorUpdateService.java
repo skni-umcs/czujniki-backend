@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import skni.kamilG.skin_sensors_api.Exception.InfluxDBQueryException;
 import skni.kamilG.skin_sensors_api.Exception.SensorUpdateException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorMapper;
@@ -25,6 +26,10 @@ import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorUpdateFailureRepository;
 
+/**
+ * Executes aync process of updating all sensors current data. @See ISensorUpdateService for
+ * definition of the methods
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
