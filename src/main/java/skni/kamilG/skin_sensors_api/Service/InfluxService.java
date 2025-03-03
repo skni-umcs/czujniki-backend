@@ -56,7 +56,7 @@ public class InfluxService implements IInfluxService {
       log.info("Successfully processed {} readings", influxLatestReadings.size());
     } catch (Exception e) {
       log.error("Error during data fetch and processing", e);
-      throw new InfluxProcessingException("Failed to process InfluxDB data", e);
+      throw new InfluxProcessingException("Failed to process InfluxDB data ", e);
     }
   }
 }

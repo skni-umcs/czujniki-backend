@@ -11,5 +11,4 @@ public record SensorResponse(
     Short temperature,
     Integer humidity,
     Integer pressure,
-    Integer gasResistance,
     Location location) {}

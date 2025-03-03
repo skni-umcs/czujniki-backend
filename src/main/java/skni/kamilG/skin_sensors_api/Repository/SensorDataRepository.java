@@ -24,8 +24,8 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
           + " GROUP BY s.id)")
   List<SensorData> findLatestDataBySensorIds(@Param("sensorIds") List<Short> sensorIds);
 
-  Optional<List<SensorData>> findBySensorIdAndTimestampBetween(
-      Short sensorId, LocalDateTime start, LocalDateTime end);
+  Optional<Page<SensorData>> findBySensorIdAndTimestampBetween(
+          Short sensorId, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
   Optional<Page<SensorData>> findByTimestampBetween(
       LocalDateTime start, LocalDateTime end, Pageable pageable);

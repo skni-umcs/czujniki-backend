@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="first_sensor_tests" author="kamilgolawski">
+        <insert tableName="location">
+            <column name="latitude" valueNumeric="51.2455605"/>
+            <column name="longitude" valueNumeric="22.5427708"/>
+            <column name="faculty_name" value="Wydział Matematyki, Fizyki i Informatyki"/>
+            <column name="faculty_abbreviation" value="MFI"/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="latitude" valueNumeric="51.2454953"/>
+            <column name="longitude" valueNumeric="22.5428597"/>
+            <column name="faculty_name" value="Wydział Matematyki, Fizyki i Informatyki"/>
+            <column name="faculty_abbreviation" value="MFI"/>
+        </insert>
+
+        <insert tableName="location">
+            <column name="latitude" valueNumeric="51.2454705"/>
+            <column name="longitude" valueNumeric="22.5427910"/>
+            <column name="faculty_name" value="Wydział Matematyki, Fizyki i Informatyki"/>
+            <column name="faculty_abbreviation" value="MFI"/>
+        </insert>
+        <insert tableName="sensor">
+            <column name="status" value="ONLINE"/>
+            <column name="id" valueNumeric="30"/>
+        </insert>
+        <insert tableName="sensor">
+            <column name="status" value="ONLINE"/>
+            <column name="id" valueNumeric="190"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

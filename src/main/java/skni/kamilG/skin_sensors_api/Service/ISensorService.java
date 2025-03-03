@@ -2,6 +2,7 @@ package skni.kamilG.skin_sensors_api.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,29 +15,29 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.Sensor;
 
 public interface ISensorService {
 
-  // Main Functionalities
-  SensorResponse getSensorById(Short sensorId);
+    // Main Functionalities
+    SensorResponse getSensorById(Short sensorId);
 
-  List<SensorDataResponse> getSensorDataById(
-      Short sensorId, LocalDateTime startDate, LocalDateTime endDate);
+    Page<SensorDataResponse> getSensorDataById(
+            Short sensorId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-  List<SensorResponse> getAllSensors();
+    List<SensorResponse> getAllSensors();
 
-  Page<SensorDataResponse> getAllSensorsData(
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<SensorDataResponse> getAllSensorsData(
+            LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-  @SneakyThrows(NoSensorsForFacultyException.class)
-  List<SensorResponse> getSensorsByFaculty(String facultyName);
+    @SneakyThrows(NoSensorsForFacultyException.class)
+    List<SensorResponse> getSensorsByFaculty(String facultyName);
 
-  @SneakyThrows(NoSensorsForFacultyException.class)
-  Page<SensorDataResponse> getSensorsDataByFaculty(
-      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    @SneakyThrows(NoSensorsForFacultyException.class)
+    Page<SensorDataResponse> getSensorsDataByFaculty(
+            String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-  // Admin Functionalities
-  @SneakyThrows(SensorAlreadyExistsException.class)
-  Sensor createSensor(SensorRequest sensor);
+    // Admin Functionalities
+    @SneakyThrows(SensorAlreadyExistsException.class)
+    Sensor createSensor(SensorRequest sensor);
 
-  SensorResponse updateSensor(SensorRequest sensor, Short sensorId);
+    SensorResponse updateSensor(SensorRequest sensor, Short sensorId);
 
-  void deleteSensor(Short sensorId);
+    void deleteSensor(Short sensorId);
 }
