@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Exception.SensorUpdateException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorMapper;
@@ -52,8 +53,17 @@ public class SensorUpdateService implements ISensorUpdateService {
   @Scheduled(fixedRate = 60000)
   @Override
   public void updateSensorsData() {
-    List<SensorResponse> updatedSensors = performSensorDataUpdate();
-    updatedSensors.forEach(sensorUpdatesSink::tryEmitNext);
+    try {
+      List<SensorResponse> updatedSensors = performSensorDataUpdate();
+      for (SensorResponse sensor : updatedSensors) {
+        Sinks.EmitResult result = sensorUpdatesSink.tryEmitNext(sensor);
+        if (result.isFailure()) {
+          log.warn("Nie udało się wysłać aktualizacji czujnika {}: {}", sensor.id(), result);
+        }
+      }
+    } catch (Exception e) {
+      log.error("Błąd podczas aktualizacji danych czujników: {}", e.getMessage());
+    }
   }
 
   @Override
@@ -186,7 +196,27 @@ public class SensorUpdateService implements ISensorUpdateService {
     return sensorUpdatesSink.asFlux();
   }
 
+  @Override
   public Flux<SensorResponse> getSensorUpdates(Short sensorId) {
-    return getAllSensorsUpdates().filter(sensor -> sensor.id().equals(sensorId));
+    try {
+      Sensor sensor = sensorRepository.findById(sensorId)
+              .orElseThrow(() -> new SensorNotFoundException(sensorId));
+
+      SensorResponse currentSensor = sensorMapper.createSensorToSensorResponse(sensor);
+
+      return Flux.just(currentSensor)
+              .concatWith(sensorUpdatesSink.asFlux()
+                      .filter(update -> update.id() != null && update.id().equals(sensorId)))
+              .onErrorResume(e -> {
+                log.error("Błąd w strumieniu danych czujnika {}: {}", sensorId, e.getMessage());
+                return Flux.empty();
+              });
+    } catch (SensorNotFoundException e) {
+      log.warn("Próba subskrypcji nieistniejącego czujnika: {}", sensorId);
+      return Flux.empty();
+    } catch (Exception e) {
+      log.error("Błąd podczas pobierania czujnika {}: {}", sensorId, e.getMessage());
+      return Flux.empty();
+    }
   }
 }

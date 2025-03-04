@@ -20,6 +20,6 @@ public class ApplicationConfig {
 
   @Bean
   public Sinks.Many<SensorResponse> sensorUpdatesSink() {
-    return Sinks.many().multicast().onBackpressureBuffer(100); // TODO to discuss with team
+    return Sinks.many().replay().limit(20);
   }
 }

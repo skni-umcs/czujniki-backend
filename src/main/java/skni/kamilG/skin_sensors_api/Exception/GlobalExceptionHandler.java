@@ -1,11 +1,14 @@
 package skni.kamilG.skin_sensors_api.Exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+
+import java.io.IOException;
 
 @Slf4j
 @ControllerAdvice
@@ -45,5 +48,22 @@ public class GlobalExceptionHandler {
       Exception ex, WebRequest request) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+  }
+
+  @ExceptionHandler(IOException.class)
+  public ResponseEntity<Void> handleIOException(IOException ex) {
+    if (ex.getMessage().contains("Broken pipe")) {
+      log.debug("Klient zamknął połączenie (Broken pipe)");
+      return ResponseEntity.noContent().build();
+    }
+
+    log.error("Błąd IO: ", ex);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+  }
+
+  @ExceptionHandler(ClientAbortException.class)
+  public ResponseEntity<Void> handleClientAbortException(ClientAbortException ex) {
+    log.debug("Klient przerwał połączenie: {}", ex.getMessage());
+    return ResponseEntity.noContent().build();
   }
 }
