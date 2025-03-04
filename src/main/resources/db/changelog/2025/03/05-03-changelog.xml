@@ -49,6 +49,11 @@
     </changeSet>
     <changeSet id="update sensors 6,7,8 with matching location ids" author="kamilgolawski">
         <update tableName="sensor">
+            <column name="location_id" valueNumeric="3"/>
+            <column name="status" value="ONLINE"/>
+            <where>id = 3</where>
+        </update>
+        <update tableName="sensor">
             <column name="location_id" valueNumeric="6"/>
             <column name="status" value="ONLINE"/>
             <where>id = 6</where>
