@@ -1,17 +1,16 @@
 package skni.kamilG.skin_sensors_api.Model.Sensor;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Entity
 @Table(name = "sensor_update_failure")
 @Setter
+@Getter
 public class SensorUpdateFailure {
 
   @Id

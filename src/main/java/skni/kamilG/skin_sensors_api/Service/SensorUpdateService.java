@@ -1,12 +1,5 @@
 package skni.kamilG.skin_sensors_api.Service;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -14,7 +7,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
-import skni.kamilG.skin_sensors_api.Exception.InfluxDBQueryException;
 import skni.kamilG.skin_sensors_api.Exception.SensorUpdateException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorMapper;
@@ -25,6 +17,14 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.SensorUpdateFailure;
 import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorUpdateFailureRepository;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Executes aync process of updating all sensors current data. @See ISensorUpdateService for
@@ -172,8 +172,13 @@ public class SensorUpdateService implements ISensorUpdateService {
 
   private void saveUpdateFailures(List<SensorUpdateFailure> updateFailures) {
     if (!updateFailures.isEmpty()) {
-      sensorUpdateFailureRepository.saveAll(updateFailures);
-      log.warn("{} sensor update failures recorded", updateFailures.size());
+      List<SensorUpdateFailure> uniqueFailures = updateFailures.stream()
+              .filter(failure -> !sensorUpdateFailureRepository.existsBySensorIdAndResolvedTimeIsNull(failure.getSensor().getId()))
+              .collect(Collectors.toList());
+      if (!uniqueFailures.isEmpty()) {
+        sensorUpdateFailureRepository.saveAll(uniqueFailures);
+        log.warn("{} sensor update failures recorded", uniqueFailures.size());
+      }
     }
   }
 

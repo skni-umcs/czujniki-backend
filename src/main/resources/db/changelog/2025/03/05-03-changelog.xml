@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="reindexing of locations id" author="kamilgolawski">
+        <update tableName="location">
+            <column name="latitude" value="51.24449002034404"/>
+            <column name="longitude" value="22.542927467725832"/>
+            <column name="faculty_name" value="Bułka i Kromka"/>
+            <column name="faculty_abbreviation" value="BiK"/>
+            <where>id = 1</where>
+        </update>
+    </changeSet>
+    <changeSet id="clean up sensor ids" author="kamilgolawski">
+        <insert tableName="sensor">
+            <column name="status" value="ONLINE"/>
+        </insert>
+        <insert tableName="sensor">
+            <column name="status" value="ONLINE"/>
+            <column name="id" valueNumeric="6"/>
+        </insert>
+        <insert tableName="sensor">
+            <column name="status" value="ONLINE"/>
+            <column name="id" valueNumeric="7"/>
+        </insert>
+    </changeSet>
+    <changeSet id="sensor_data reindexing" author="">
+        <update tableName="sensor_data">
+            <column name="sensor_id" value="6"/>
+            <where>sensor_id = 3 and pressure = 0</where>
+        </update>
+
+        <update tableName="sensor_data">
+            <column name="sensor_id" value="7"/>
+            <where>sensor_id = 30</where>
+        </update>
+
+        <update tableName="sensor_data">
+            <column name="sensor_id" value="8"/>
+            <where>sensor_id = 190</where>
+        </update>
+    </changeSet>
+    <changeSet id="delete specific sensors for 0.2 tests" author="kamilgolawski">
+        <delete tableName="sensor">
+            <where>id in (10, 11, 30, 190)</where>
+        </delete>
+    </changeSet>
+    <changeSet id="update sensors 6,7,8 with matching location ids" author="kamilgolawski">
+        <update tableName="sensor">
+            <column name="location_id" valueNumeric="6"/>
+            <column name="status" value="ONLINE"/>
+            <where>id = 6</where>
+        </update>
+
+        <update tableName="sensor">
+            <column name="location_id" valueNumeric="7"/>
+            <column name="status" value="ONLINE"/>
+            <where>id = 7</where>
+        </update>
+
+        <update tableName="sensor">
+            <column name="location_id" valueNumeric="8"/>
+            <column name="status" value="ONLINE"/>
+            <where>id = 8</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>
+
+

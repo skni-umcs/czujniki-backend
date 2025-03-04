@@ -5,4 +5,6 @@ import skni.kamilG.skin_sensors_api.Model.Sensor.SensorUpdateFailure;
 
 public interface SensorUpdateFailureRepository extends JpaRepository<SensorUpdateFailure, Long> {
   SensorUpdateFailure getBySensorIdAndResolvedTimeIsNull(Short sensor_id);
+
+  boolean existsBySensorIdAndResolvedTimeIsNull(Short sensor_id);
 }
