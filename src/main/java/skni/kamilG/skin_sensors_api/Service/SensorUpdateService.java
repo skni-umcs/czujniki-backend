@@ -2,12 +2,13 @@ package skni.kamilG.skin_sensors_api.Service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
-import skni.kamilG.skin_sensors_api.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Exception.SensorUpdateException;
 import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Model.Sensor.Mapper.SensorMapper;
@@ -19,7 +20,9 @@ import skni.kamilG.skin_sensors_api.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Repository.SensorUpdateFailureRepository;
 
+import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,7 @@ public class SensorUpdateService implements ISensorUpdateService {
   private final SensorMapper sensorMapper;
   private final Clock clock;
   private final InfluxService influxService;
+  private final Duration heartbeatInterval;
 
   @Override
   public void forceUpdateSensorsData() {
@@ -56,13 +60,16 @@ public class SensorUpdateService implements ISensorUpdateService {
     try {
       List<SensorResponse> updatedSensors = performSensorDataUpdate();
       for (SensorResponse sensor : updatedSensors) {
-        Sinks.EmitResult result = sensorUpdatesSink.tryEmitNext(sensor);
-        if (result.isFailure()) {
-          log.warn("Nie udało się wysłać aktualizacji czujnika {}: {}", sensor.id(), result);
-        }
+        sensorUpdatesSink.emitNext(sensor, (signalType, emitResult) -> {
+          if (emitResult.isFailure()) {
+            log.warn("Failed to emit sensor update: {} - {}", emitResult, signalType);
+          }
+          return false;
+        });
       }
+      log.debug("Emitted {} sensor updates to SSE stream", updatedSensors.size());
     } catch (Exception e) {
-      log.error("Błąd podczas aktualizacji danych czujników: {}", e.getMessage());
+      log.error("Error during sensor update: {}", e.getMessage(), e);
     }
   }
 
@@ -192,31 +199,63 @@ public class SensorUpdateService implements ISensorUpdateService {
     }
   }
 
-  public Flux<SensorResponse> getAllSensorsUpdates() {
-    return sensorUpdatesSink.asFlux();
+  @Override
+  public Flux<ServerSentEvent<SensorResponse>> getAllSensorsUpdatesAsSSE() {
+    Flux<ServerSentEvent<SensorResponse>> initialState = Flux.defer(() -> {
+      List<SensorResponse> currentState = sensorRepository.findAll().stream()
+              .map(sensorMapper::createSensorToSensorResponse)
+              .collect(Collectors.toList());
+
+      log.debug("New client connected, sending initial state of {} sensors", currentState.size());
+
+      return Flux.fromIterable(currentState)
+              .map(this::createServerSentEvent); //initial
+    });
+
+    Flux<ServerSentEvent<SensorResponse>> updates = sensorUpdatesSink.asFlux()
+            .map(this::createServerSentEvent); //update
+
+    Flux<ServerSentEvent<SensorResponse>> heartbeats = Flux.interval(heartbeatInterval)
+            .map(tick -> ServerSentEvent.<SensorResponse>builder()
+                    .id("heartbeat-" + System.currentTimeMillis())
+                    .comment("heartbeat")
+                    .build());
+
+    return Flux.merge(initialState, updates, heartbeats)
+            .onErrorResume(IOException.class, e -> {
+              if (e.getMessage().contains("Broken pipe") ||
+                      e.getMessage().contains("Connection reset by peer")) {
+                log.debug("Client disconnected from SSE stream (normal behavior)");
+                return Mono.empty();
+              }
+              log.warn("IO error in SSE stream: {}", e.getMessage());
+              return Mono.error(e);
+            })
+            .onErrorResume(e -> {
+              log.error("Unhandled error in SSE stream: {}", e.getMessage());
+              return Mono.empty();
+            })
+            .timeout(Duration.ofMinutes(15));
+
   }
 
   @Override
-  public Flux<SensorResponse> getSensorUpdates(Short sensorId) {
-    try {
-      Sensor sensor = sensorRepository.findById(sensorId)
-              .orElseThrow(() -> new SensorNotFoundException(sensorId));
+  public Flux<ServerSentEvent<SensorResponse>> getSensorUpdatesAsSSE(Short sensorId) {
+    return getAllSensorsUpdatesAsSSE()
+            .filter(sse -> {
+              if (sse.comment() != null && sse.comment().equals("heartbeat")) {
+                return true;
+              }
 
-      SensorResponse currentSensor = sensorMapper.createSensorToSensorResponse(sensor);
+              SensorResponse data = sse.data();
+              return data != null && data.id().equals(sensorId);
+            });
+  }
 
-      return Flux.just(currentSensor)
-              .concatWith(sensorUpdatesSink.asFlux()
-                      .filter(update -> update.id() != null && update.id().equals(sensorId)))
-              .onErrorResume(e -> {
-                log.error("Błąd w strumieniu danych czujnika {}: {}", sensorId, e.getMessage());
-                return Flux.empty();
-              });
-    } catch (SensorNotFoundException e) {
-      log.warn("Próba subskrypcji nieistniejącego czujnika: {}", sensorId);
-      return Flux.empty();
-    } catch (Exception e) {
-      log.error("Błąd podczas pobierania czujnika {}: {}", sensorId, e.getMessage());
-      return Flux.empty();
-    }
+  private ServerSentEvent<SensorResponse> createServerSentEvent(SensorResponse sensor) {
+    return ServerSentEvent.<SensorResponse>builder()
+            .id(sensor.id() + "-" + System.currentTimeMillis())
+            .data(sensor)
+            .build();
   }
 }

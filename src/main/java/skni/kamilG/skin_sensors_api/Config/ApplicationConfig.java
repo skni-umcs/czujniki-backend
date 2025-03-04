@@ -1,6 +1,7 @@
 package skni.kamilG.skin_sensors_api.Config;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,10 @@ public class ApplicationConfig {
 
   @Bean
   public Sinks.Many<SensorResponse> sensorUpdatesSink() {
-    return Sinks.many().replay().limit(20);
+    return Sinks.many().replay().limit(1);
+  }
+  @Bean
+  public Duration heartbeatInterval() {
+    return Duration.ofSeconds(25);
   }
 }
