@@ -5,7 +5,7 @@ GET http://localhost:8080/api/sensor/1
 GET http://localhost:8080/api/sensor/1/live
 
 ### Paginacja
-GET http://localhost:8080/api/sensor/1/data?startDate=2025-03-03T23:00:00&endDate=2025-03-03T23:30:00&page=0&size=8
+GET http://localhost:8080/api/sensor/1/data?startDate=2025-03-04T13:00:00&endDate=2025-03-04T15:00:00&page=0&size=8
 
 ###
 GET http://localhost:8080/api/sensor/all

@@ -2,10 +2,8 @@ package skni.kamilG.skin_sensors_api.Controller;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,15 +52,15 @@ public class SensorController {
         return sensorUpdateService.getAllSensorsUpdatesAsSSE();
     }
 
-    @GetMapping("/{id}/data")
-    public ResponseEntity<Page<SensorDataResponse>> getSensorDataById(
-            @PathVariable Short id,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-            LocalDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-            LocalDateTime endDate,
-            @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
-            Pageable pageable) {
+  @GetMapping("/{id}/data")
+  public ResponseEntity<Page<SensorDataResponse>> getSensorDataById(
+      @PathVariable Short id,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
+          LocalDateTime startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
+          LocalDateTime endDate,
+      @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.ASC)
+          Pageable pageable) {
 
         validateDateRange(startDate, endDate);
         return ResponseEntity.ok(sensorService.getSensorDataById(id, startDate, endDate, pageable));
