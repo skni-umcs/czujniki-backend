@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Sinks;
-import skni.kamilG.skin_sensors_api.Model.Sensor.DTO.SensorResponse;
+import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 
 @Configuration
 public class ApplicationConfig {
