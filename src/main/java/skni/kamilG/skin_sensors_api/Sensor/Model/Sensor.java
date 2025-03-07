@@ -26,11 +26,13 @@ public class Sensor implements Serializable {
 
   private LocalDateTime lastUpdate;
 
-  private Short temperature;
+  private Float temperature;
 
   private Integer humidity;
 
   private Integer pressure;
+
+  private Short refreshRate;
 
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")

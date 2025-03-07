@@ -4,8 +4,8 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -22,46 +22,36 @@ public class InfluxReadingRepository {
   private static final String PRESSURE_FIELD = "pressure";
 
   private static final String SENSOR_ID_FIELD = "sensor_id";
+
   @Value("${influxdb.bucket:czujniki}")
   private String bucket;
-  @Value("${influxdb.timeRange:60s}")
-  private String timeRange;
+
   public InfluxReadingRepository(InfluxDBClient influxDBClient) {
     this.influxDBClient = influxDBClient;
   }
 
-  /**
-   * Gets the readings from InfluxDB for the specified time range
-   *
-   * @return List of sensor readings
-   * @throws InfluxDBQueryException if there's an error executing the query
-   */
-  public List<InfluxReading> getLatestReadings() {
-    List<InfluxReading> readings = new ArrayList<>();
-    String fluxQuery = buildQuery();
+  public Optional<InfluxReading> getLatestReading(Short sensorId, Short refreshRate) {
+    String fluxQuery = buildQueryWithParams(sensorId, refreshRate);
     QueryApi queryApi = influxDBClient.getQueryApi();
 
     try {
       log.debug("Executing InfluxDB query: {}", fluxQuery);
       List<FluxTable> tables = queryApi.query(fluxQuery);
 
-      for (FluxTable table : tables) {
-        for (FluxRecord record : table.getRecords()) {
-          try {
-            readings.add(mapRecordToReading(record));
-          } catch (DataMappingException e) {
-            log.warn("Skipping record due to mapping error: {}", e.getMessage());
-          }
-        }
+      if (tables.isEmpty() || tables.getFirst().getRecords().isEmpty()) {
+        return Optional.empty();
       }
 
-      log.debug("Retrieved {} readings from InfluxDB", readings.size());
+      FluxRecord record = tables.getFirst().getRecords().getFirst();
+      return Optional.of(mapRecordToReading(record));
+
+    } catch (DataMappingException e) {
+      log.warn("Failed to map sensor data: {}", e.getMessage());
+      return Optional.empty();
     } catch (Exception e) {
       log.error("Error executing InfluxDB query: {}", fluxQuery, e);
       throw new InfluxDBQueryException("Failed to fetch data from InfluxDB", e);
     }
-
-    return readings;
   }
 
   /**
@@ -69,7 +59,7 @@ public class InfluxReadingRepository {
    *
    * @return Flux query string
    */
-  private String buildQuery() {
+  private String buildQueryWithParams(Short sensorId, Short refreshRate) {
     return String.format(
         """
         from(bucket: "%s")
@@ -80,8 +70,16 @@ public class InfluxReadingRepository {
                                r["_field"] == "%s" or
                                r["_field"] == "%s")
           |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+          |> filter(fn: (r) => r["sensor_id"] == %s)
+          |> last(column: "_time")
         """,
-        bucket, timeRange, HUMIDITY_FIELD, PRESSURE_FIELD, TEMPERATURE_FIELD, SENSOR_ID_FIELD);
+        bucket,
+        refreshRate,
+        HUMIDITY_FIELD,
+        PRESSURE_FIELD,
+        TEMPERATURE_FIELD,
+        SENSOR_ID_FIELD,
+        sensorId);
   }
 
   /**

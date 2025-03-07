@@ -25,7 +25,7 @@ public class SensorData {
 
   private LocalDateTime timestamp;
 
-  private Short temperature;
+  private Float temperature;
 
   private Integer humidity;
 

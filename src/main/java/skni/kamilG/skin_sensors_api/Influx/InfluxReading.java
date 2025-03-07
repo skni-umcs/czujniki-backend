@@ -3,6 +3,7 @@ package skni.kamilG.skin_sensors_api.Influx;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 import java.time.Instant;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,9 +17,21 @@ public class InfluxReading {
 
   @Column private Short sensorId;
 
-  @Column private Short temperature;
+  @Column
+  @Setter(AccessLevel.NONE)
+  private Float temperature;
 
   @Column private Integer humidity;
 
-  @Column private Integer pressure;
+  @Setter(AccessLevel.NONE)
+  @Column
+  private Integer pressure;
+
+  public void setTemperature(Short temperature) {
+    this.temperature = (float) (temperature / 100);
+  }
+
+  public void setPressure(Integer pressure) {
+    this.pressure = pressure / 100;
+  }
 }

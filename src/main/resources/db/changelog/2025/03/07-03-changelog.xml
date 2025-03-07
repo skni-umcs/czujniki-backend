@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="get rid of user connected tables" author="kamilgolawski">
+        <dropTable tableName="user_favorite_sensors" cascadeConstraints="true"/>
+        <dropTable tableName="user_role" cascadeConstraints="true"/>
+        <dropTable tableName="user" cascadeConstraints="true"/>
+        <dropTable tableName="role" cascadeConstraints="true"/>
+    </changeSet>
+
+    <changeSet id="add refresh rate" author="kamilgolawski">
+        <addColumn tableName="sensor">
+            <column name="refresh_rate" type="SMALLINT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="change types of temp" author="">
+        <modifyDataType tableName="sensor" columnName="temperature" newDataType="FLOAT"/>
+        <modifyDataType tableName="sensor_data" columnName="temperature" newDataType="FLOAT"/>
+    </changeSet>
+</databaseChangeLog>
