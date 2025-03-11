@@ -18,7 +18,6 @@ public class InfluxReadingMapper {
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
 
-
   @Transactional
   public SensorData toSensorData(InfluxReading reading) {
     Sensor sensor =

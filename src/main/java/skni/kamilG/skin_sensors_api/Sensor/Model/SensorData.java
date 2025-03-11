@@ -1,6 +1,7 @@
 package skni.kamilG.skin_sensors_api.Sensor.Model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.*;
 
@@ -25,7 +26,8 @@ public class SensorData {
 
   private LocalDateTime timestamp;
 
-  private Float temperature;
+  @Column(precision = 5, scale = 1)
+  private BigDecimal temperature;
 
   private Integer humidity;
 

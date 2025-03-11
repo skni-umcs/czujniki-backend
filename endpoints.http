@@ -23,5 +23,17 @@ GET http://localhost:8080/api/sensor/faculty/MFI
 GET http://localhost:8080/api/sensor/faculty/WPIA/data?startDate=2025-03-03T23:00:00&endDate=2025-03-03T23:30:00&page=0&
     size=8
 
+###
+POST http://localhost:8080/api/sensor/refresh-rates
+X-API-KEY: sensors-api_20250311_gbxc2fr7ZiPNT_XIjWk2uLOKwPBoK8FAEPgz2caE-FQ
+Content-Type: application/json
+
+[
+  {
+    "sensorId": 3,
+    "refreshRate": 30
+  }
+]
+
 
 

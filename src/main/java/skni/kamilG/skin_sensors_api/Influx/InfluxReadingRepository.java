@@ -63,7 +63,7 @@ public class InfluxReadingRepository {
     return String.format(
         """
         from(bucket: "%s")
-          |> range(start: -%s)
+          |> range(start: -%ds)
           |> filter(fn: (r) => r["_measurement"] == "sensor_readings")
           |> filter(fn: (r) => r["_field"] == "%s" or
                                r["_field"] == "%s" or
@@ -91,9 +91,9 @@ public class InfluxReadingRepository {
    */
   private InfluxReading mapRecordToReading(FluxRecord record) {
     InfluxReading reading = new InfluxReading();
-    reading.setTime(record.getTime());
 
     try {
+      reading.setTime(record.getTime());
       reading.setSensorId(getValueAsSensorId(record));
       reading.setTemperature(getValueAsTemperature(record));
       reading.setHumidity(getValueAsInteger(record, HUMIDITY_FIELD));

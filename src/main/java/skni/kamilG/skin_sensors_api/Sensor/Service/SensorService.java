@@ -15,12 +15,14 @@ import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorDataResponse;
+import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorDataMapper;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorMapper;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorRepository;
+import skni.kamilG.skin_sensors_api.Threads.Scheduler;
 
 @Slf4j
 @Service
@@ -32,11 +34,12 @@ public class SensorService implements ISensorService {
   private final SensorDataRepository sensorDataRepository;
   private final SensorMapper sensorMapper;
   private final SensorDataMapper sensorDataMapper;
+  private final Scheduler scheduler;
 
   @Override
   public SensorResponse getSensorById(Short sensorId) {
     log.debug("Getting sensor by id: {}", sensorId);
-    return sensorMapper.createSensorToSensorResponse(
+    return sensorMapper.mapToSensorResponse(
         sensorRepository
             .findById(sensorId)
             .orElseThrow(() -> new SensorNotFoundException(sensorId)));
@@ -63,7 +66,7 @@ public class SensorService implements ISensorService {
   public List<SensorResponse> getAllSensors() {
     log.debug("Getting all sensors");
     return sensorRepository.findAll().stream()
-        .map(sensorMapper::createSensorToSensorResponse)
+        .map(sensorMapper::mapToSensorResponse)
         .collect(Collectors.toList());
   }
 
@@ -89,9 +92,7 @@ public class SensorService implements ISensorService {
     if (sensors.isEmpty()) {
       throw new NoSensorsForFacultyException(facultyName);
     }
-    return sensors.stream()
-        .map(sensorMapper::createSensorToSensorResponse)
-        .collect(Collectors.toList());
+    return sensors.stream().map(sensorMapper::mapToSensorResponse).collect(Collectors.toList());
   }
 
   @Override
@@ -123,5 +124,25 @@ public class SensorService implements ISensorService {
       throw new NoSensorsForFacultyException(facultyName);
     }
     return sensors;
+  }
+
+  @Override
+  @Transactional
+  public void updateSensorsRefreshRates(List<SensorRequest> sensorRequestsToUpdateRates) {
+    List<Sensor> sensorsToUpdate =
+        sensorRequestsToUpdateRates.stream()
+            .map(
+                request ->
+                    sensorRepository
+                        .findById(request.sensorId())
+                        .map(
+                            sensor -> {
+                              sensor.setRefreshRate(request.refreshRate());
+                              return sensor;
+                            })
+                        .orElseThrow(() -> new SensorNotFoundException(request.sensorId())))
+            .collect(Collectors.toList());
+    List<Sensor> savedSensors = sensorRepository.saveAll(sensorsToUpdate);
+    scheduler.updateTaskRates(savedSensors);
   }
 }

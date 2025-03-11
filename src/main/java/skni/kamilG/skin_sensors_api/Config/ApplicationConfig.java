@@ -23,6 +23,7 @@ public class ApplicationConfig {
   public Sinks.Many<SensorResponse> sensorUpdatesSink() {
     return Sinks.many().replay().limit(1);
   }
+
   @Bean
   public Duration heartbeatInterval() {
     return Duration.ofSeconds(25);

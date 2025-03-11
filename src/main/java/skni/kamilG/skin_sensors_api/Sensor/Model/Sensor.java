@@ -2,6 +2,7 @@ package skni.kamilG.skin_sensors_api.Sensor.Model;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,7 +27,8 @@ public class Sensor implements Serializable {
 
   private LocalDateTime lastUpdate;
 
-  private Float temperature;
+  @Column(precision = 5, scale = 1)
+  private BigDecimal temperature;
 
   private Integer humidity;
 

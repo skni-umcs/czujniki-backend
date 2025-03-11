@@ -13,6 +13,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
+        .securityMatcher("/api/refresh-rates")
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
     return http.build();

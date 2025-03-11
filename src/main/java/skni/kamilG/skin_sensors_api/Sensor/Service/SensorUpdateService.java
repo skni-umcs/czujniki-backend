@@ -1,25 +1,29 @@
 package skni.kamilG.skin_sensors_api.Sensor.Service;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 import skni.kamilG.skin_sensors_api.Influx.IInfluxService;
-import skni.kamilG.skin_sensors_api.Sensor.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorMapper;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Sensor.Model.SensorData;
+import skni.kamilG.skin_sensors_api.Sensor.Model.SensorStatus;
+import skni.kamilG.skin_sensors_api.Sensor.Model.SensorUpdateFailure;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorRepository;
+import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorUpdateFailureRepository;
 
 /**
  * Executes aync process of updating all sensors current data. @See ISensorUpdateService for
@@ -27,26 +31,63 @@ import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorRepository;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SensorUpdateService implements ISensorUpdateService {
 
   private final SensorRepository sensorRepository;
-  private final Sinks.Many<SensorResponse> sensorUpdatesSink;
+  private final SensorUpdateFailureRepository sensorUpdateFailureRepository;
   private final SensorMapper sensorMapper;
+  private final Sinks.Many<SensorResponse> sensorUpdatesSink;
   private final Duration heartbeatInterval;
   private final IInfluxService influxService;
+  private final Clock clock;
 
-  public void updateSingleSensor(Short sensorId, Short refreshRate) {
-    Optional<SensorData> currentReading = influxService.fetchLatestData(sensorId, refreshRate);
-    if (!currentReading.isPresent()) {
-      Sensor sensorToUpdate =
-          sensorRepository
-              .findById(sensorId)
-              .orElseThrow(() -> new SensorNotFoundException(sensorId));
+  @Value("${scheduler.default-rate:180}")
+  private short defaultRate;
 
-      sensorToUpdate.set
+  public List<Sensor> findSensorsToUpdate() {
+    return sensorRepository.findByStatusNotOrderById(SensorStatus.OFFLINE);
+  }
+
+  public void updateSingleSensor(Sensor sensor) {
+    Optional<SensorData> currentReading =
+        influxService.fetchLatestData(
+            sensor.getId(),
+            sensor.getRefreshRate() == null ? defaultRate : sensor.getRefreshRate());
+    if (currentReading.isPresent()) {
+      SensorData sensorData = currentReading.get();
+      sensor.updateFromSensorData(sensorData, clock);
+      if (sensor.getStatus() == SensorStatus.ERROR) {
+        recoverSensorFromError(sensor);
+      }
+      sensorRepository.save(sensor);
+      sensorUpdatesSink.tryEmitNext(sensorMapper.mapToSensorResponse(sensor));
+    } else {
+      recordUpdateFailure(sensor);
     }
-    //TODO trackowanie bledow z sensorUdpate Filaurte
+  }
+
+  private void recordUpdateFailure(Sensor sensor) {
+    if (sensorUpdateFailureRepository.existsBySensorIdAndResolvedTimeIsNull(sensor.getId())) {
+      log.debug("Sensor {} already has unresolved update failure", sensor.getId());
+      return;
+    }
+    String warning = String.format("Sensor %d didn't send latest data", sensor.getId());
+    log.warn(warning);
+    sensor.setStatus(SensorStatus.ERROR);
+
+    sensorUpdateFailureRepository.save(
+        new SensorUpdateFailure(LocalDateTime.now(clock), warning, sensor));
+    sensorRepository.save(sensor);
+  }
+
+  private void recoverSensorFromError(Sensor sensor) {
+    sensor.setStatus(SensorStatus.ONLINE);
+    SensorUpdateFailure failureToChange =
+        sensorUpdateFailureRepository.getBySensorIdAndResolvedTimeIsNull(sensor.getId());
+    failureToChange.setResolvedTime(LocalDateTime.now(clock));
+    sensorUpdateFailureRepository.save(failureToChange);
+    log.info("Sensor {} is back online", sensor.getId());
   }
 
   @Override
@@ -56,7 +97,7 @@ public class SensorUpdateService implements ISensorUpdateService {
             () -> {
               List<SensorResponse> currentState =
                   sensorRepository.findAll().stream()
-                      .map(sensorMapper::createSensorToSensorResponse)
+                      .map(sensorMapper::mapToSensorResponse)
                       .collect(Collectors.toList());
 
               log.debug(

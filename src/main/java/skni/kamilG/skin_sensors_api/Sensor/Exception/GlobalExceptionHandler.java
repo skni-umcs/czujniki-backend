@@ -1,10 +1,13 @@
 package skni.kamilG.skin_sensors_api.Sensor.Exception;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -64,5 +67,19 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Void> handleClientAbortException(ClientAbortException ex) {
     log.debug("Klient przerwał połączenie: {}", ex.getMessage());
     return ResponseEntity.noContent().build();
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ExceptionInfo> handleValidationErrors(
+      MethodArgumentNotValidException ex, WebRequest request) {
+    String errorMessage =
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(", "));
+
+    log.error("Validation error: {}", errorMessage);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(new ExceptionInfo(errorMessage, request.getDescription(false)));
   }
 }

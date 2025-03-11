@@ -7,10 +7,6 @@ import skni.kamilG.skin_sensors_api.Sensor.Model.Location;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class SensorNotFoundException extends RuntimeException {
 
-  public SensorNotFoundException() {
-    super("Sensor not found");
-  }
-
   public SensorNotFoundException(Short sensorId) {
     super(String.format("Sensor not found with ID %d", sensorId));
   }
