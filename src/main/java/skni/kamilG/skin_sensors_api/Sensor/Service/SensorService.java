@@ -138,11 +138,16 @@ public class SensorService implements ISensorService {
                         .map(
                             sensor -> {
                               sensor.setRefreshRate(request.refreshRate());
+                              log.info(
+                                  "Updating sensor {} refresh rate to {} seconds",
+                                  sensor.getId(),
+                                  request.refreshRate());
                               return sensor;
                             })
                         .orElseThrow(() -> new SensorNotFoundException(request.sensorId())))
             .collect(Collectors.toList());
     List<Sensor> savedSensors = sensorRepository.saveAll(sensorsToUpdate);
     scheduler.updateTaskRates(savedSensors);
+    log.info("Updated refresh rates for {} sensors", savedSensors.size());
   }
 }
