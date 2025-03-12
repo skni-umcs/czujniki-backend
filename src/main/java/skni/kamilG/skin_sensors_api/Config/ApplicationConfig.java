@@ -11,7 +11,7 @@ import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 
 @Configuration
 public class ApplicationConfig {
-  @Value("${app.timezone:Europe/Warsaw}")
+  @Value("${app.timezone:UTC}")
   private String timezone;
 
   @Bean

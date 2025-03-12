@@ -1,6 +1,7 @@
 package skni.kamilG.skin_sensors_api.Sensor.Exception;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
@@ -16,6 +17,8 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+  private Clock clock;
+
   @ExceptionHandler(NoSensorDataFoundException.class)
   public ResponseEntity<ExceptionInfo> handleNoSensorDataFoundException(
       NoSensorDataFoundException ex, WebRequest request) {
@@ -23,7 +26,7 @@ public class GlobalExceptionHandler {
     log.error("No sensors data found. Period: {} - {}", ex.getStartTime(), ex.getEndTime());
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true), clock));
   }
 
   @ExceptionHandler(InvalidDateRangeException.class)
@@ -33,7 +36,7 @@ public class GlobalExceptionHandler {
     log.error("Invalid date range: unlogical order: {} - {}", ex.getStartTime(), ex.getEndTime());
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true), clock));
   }
 
   @ExceptionHandler(Exception.class)
@@ -42,14 +45,14 @@ public class GlobalExceptionHandler {
     log.error("Unexpected error: ", ex);
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true), clock));
   }
 
   @ExceptionHandler(SensorNotFoundException.class)
   public ResponseEntity<ExceptionInfo> handleSensorUpdateException(
       Exception ex, WebRequest request) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true)));
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(true), clock));
   }
 
   @ExceptionHandler(IOException.class)
@@ -80,6 +83,6 @@ public class GlobalExceptionHandler {
     log.error("Validation error: {}", errorMessage);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(new ExceptionInfo(errorMessage, request.getDescription(false)));
+        .body(new ExceptionInfo(errorMessage, request.getDescription(false), clock));
   }
 }

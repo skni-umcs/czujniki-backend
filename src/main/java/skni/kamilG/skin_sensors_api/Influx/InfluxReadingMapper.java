@@ -1,7 +1,6 @@
 package skni.kamilG.skin_sensors_api.Influx;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,18 +16,20 @@ public class InfluxReadingMapper {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
+  private final Clock clock;
 
   @Transactional
   public SensorData toSensorData(InfluxReading reading) {
+
     Sensor sensor =
         sensorRepository
             .findById(reading.getSensorId())
             .orElseThrow(() -> new SensorNotFoundException(reading.getSensorId()));
-    ZonedDateTime zonedDateTime = reading.getTime().atZone(ZoneId.of("Europe/Warsaw"));
+    LocalDateTime timestampUtc = LocalDateTime.ofInstant(reading.getTime(), clock.getZone());
     SensorData sensorData =
         SensorData.builder()
             .sensor(sensor)
-            .timestamp(zonedDateTime.toLocalDateTime())
+            .timestamp(timestampUtc)
             .temperature(reading.getTemperature())
             .humidity(reading.getHumidity())
             .pressure(reading.getPressure())

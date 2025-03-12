@@ -60,25 +60,31 @@ public class SensorController {
       @PathVariable Short id,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
+      @RequestParam(required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          @PastOrPresent
           LocalDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.ASC)
           Pageable pageable) {
-
-    validateDateRange(startDate, endDate);
-    return ResponseEntity.ok(sensorService.getSensorDataById(id, startDate, endDate, pageable));
+    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    validateDateRange(startDate, endDateToFilter);
+    return ResponseEntity.ok(
+        sensorService.getSensorDataById(id, startDate, endDateToFilter, pageable));
   }
 
   @GetMapping("/all/data")
   public ResponseEntity<Page<SensorDataResponse>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
+      @RequestParam(required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          @PastOrPresent
           LocalDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    validateDateRange(startDate, endDate);
-    return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDate, pageable));
+    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    validateDateRange(startDate, endDateToFilter);
+    return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDateToFilter, pageable));
   }
 
   @GetMapping("/faculty/{facultyName}")
@@ -92,13 +98,16 @@ public class SensorController {
       @PathVariable String facultyName,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           LocalDateTime startDate,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
+      @RequestParam(required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          @PastOrPresent
           LocalDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    validateDateRange(startDate, endDate);
+    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(
-        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDate, pageable));
+        sensorService.getSensorsDataByFaculty(facultyName, startDate, endDateToFilter, pageable));
   }
 
   /**
