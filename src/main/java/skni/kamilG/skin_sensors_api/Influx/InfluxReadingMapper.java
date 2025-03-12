@@ -25,11 +25,10 @@ public class InfluxReadingMapper {
         sensorRepository
             .findById(reading.getSensorId())
             .orElseThrow(() -> new SensorNotFoundException(reading.getSensorId()));
-    LocalDateTime timestampUtc = LocalDateTime.ofInstant(reading.getTime(), clock.getZone());
     SensorData sensorData =
         SensorData.builder()
             .sensor(sensor)
-            .timestamp(timestampUtc)
+            .timestamp(reading.getTime().atZone(ZoneOffset.UTC))
             .temperature(reading.getTemperature())
             .humidity(reading.getHumidity())
             .pressure(reading.getPressure())

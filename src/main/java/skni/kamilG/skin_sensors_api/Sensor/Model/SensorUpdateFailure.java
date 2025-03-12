@@ -1,7 +1,7 @@
 package skni.kamilG.skin_sensors_api.Sensor.Model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.*;
 
 @NoArgsConstructor
@@ -18,9 +18,9 @@ public class SensorUpdateFailure {
 
   @NonNull
   @Column(nullable = false)
-  private LocalDateTime issuedTime;
+  private ZonedDateTime issuedTime;
 
-  private LocalDateTime resolvedTime;
+  private ZonedDateTime resolvedTime;
 
   @NonNull private String errorMessage;
 

@@ -35,7 +35,6 @@ public class InfluxReadingRepository {
     QueryApi queryApi = influxDBClient.getQueryApi();
 
     try {
-      log.debug("Executing InfluxDB query: {}", fluxQuery);
       List<FluxTable> tables = queryApi.query(fluxQuery);
 
       if (tables.isEmpty() || tables.getFirst().getRecords().isEmpty()) {

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.*;
@@ -25,7 +25,7 @@ public class Sensor implements Serializable {
   @Enumerated(EnumType.STRING)
   private SensorStatus status;
 
-  private LocalDateTime lastUpdate;
+  private ZonedDateTime lastUpdate;
 
   @Column(precision = 5, scale = 1)
   private BigDecimal temperature;
@@ -49,6 +49,6 @@ public class Sensor implements Serializable {
     this.temperature = latestSensorData.getTemperature();
     this.humidity = latestSensorData.getHumidity();
     this.pressure = latestSensorData.getPressure();
-    this.lastUpdate = LocalDateTime.now(clock);
+    this.lastUpdate = ZonedDateTime.now(clock);
   }
 }

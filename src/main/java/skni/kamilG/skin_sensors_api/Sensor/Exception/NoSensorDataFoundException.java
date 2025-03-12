@@ -1,12 +1,12 @@
 package skni.kamilG.skin_sensors_api.Sensor.Exception;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.Getter;
 
 @Getter
 public class NoSensorDataFoundException extends RuntimeException {
-  private final LocalDateTime startTime;
-  private final LocalDateTime endTime;
+  private final ZonedDateTime startTime;
+  private final ZonedDateTime endTime;
 
   public NoSensorDataFoundException() {
     super("Sensor data not found");
@@ -14,7 +14,7 @@ public class NoSensorDataFoundException extends RuntimeException {
     this.endTime = null;
   }
 
-  public NoSensorDataFoundException(LocalDateTime startTime, LocalDateTime endTime) {
+  public NoSensorDataFoundException(ZonedDateTime startTime, ZonedDateTime endTime) {
     super(String.format("Sensor data not found for period: %s - %s", startTime, endTime));
     this.startTime = startTime;
     this.endTime = endTime;

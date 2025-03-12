@@ -29,4 +29,19 @@
             <where>id = 5</where>
         </update>
     </changeSet>
+    <changeSet id="changed timestamp storage type to zoned" author="admin">
+        <modifyDataType
+                tableName="sensor"
+                columnName="last_update"
+                newDataType="TIMESTAMP WITH TIME ZONE"/>
+        <modifyDataType tableName="sensor_update_failure"
+                        columnName="issued_time"
+                        newDataType="TIMESTAMP WITH TIME ZONE"/>
+        <modifyDataType tableName="sensor_update_failure"
+                        columnName="resolved_time"
+                        newDataType="TIMESTAMP WITH TIME ZONE"/>
+        <modifyDataType tableName="sensor_data"
+                        columnName="timestamp"
+                        newDataType="TIMESTAMP WITH TIME ZONE"/>
+    </changeSet>
 </databaseChangeLog>

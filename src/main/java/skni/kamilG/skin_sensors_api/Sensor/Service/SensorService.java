@@ -1,6 +1,6 @@
 package skni.kamilG.skin_sensors_api.Sensor.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -47,7 +47,7 @@ public class SensorService implements ISensorService {
 
   @Override
   public Page<SensorDataResponse> getSensorDataById(
-      Short sensorId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+      Short sensorId, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable) {
     validateDateRange(startDate, endDate);
 
     log.debug(
@@ -72,7 +72,7 @@ public class SensorService implements ISensorService {
 
   @Override
   public Page<SensorDataResponse> getAllSensorsData(
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+      ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable) {
     validateDateRange(startDate, endDate);
 
     log.debug("Getting all sensors data between {} and {}, page: {}", startDate, endDate, pageable);
@@ -97,7 +97,7 @@ public class SensorService implements ISensorService {
 
   @Override
   public Page<SensorDataResponse> getSensorsDataByFaculty(
-      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+      String facultyName, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable) {
     log.debug(
         "Getting sensors data for faculty: {} between {} and {}", facultyName, startDate, endDate);
 
@@ -109,7 +109,7 @@ public class SensorService implements ISensorService {
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
-  private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+  private void validateDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
     if (startDate.isAfter(endDate)) {
       throw new InvalidDateRangeException("Start date must be before or equal to end date");
     }

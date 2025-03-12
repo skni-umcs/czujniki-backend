@@ -3,7 +3,7 @@ package skni.kamilG.skin_sensors_api.Sensor.Service;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class SensorUpdateService implements ISensorUpdateService {
     sensor.setStatus(SensorStatus.ERROR);
 
     sensorUpdateFailureRepository.save(
-        new SensorUpdateFailure(LocalDateTime.now(clock), warning, sensor));
+        new SensorUpdateFailure(ZonedDateTime.from(ZonedDateTime.now(clock)), warning, sensor));
     sensorRepository.save(sensor);
   }
 
@@ -85,7 +85,7 @@ public class SensorUpdateService implements ISensorUpdateService {
     sensor.setStatus(SensorStatus.ONLINE);
     SensorUpdateFailure failureToChange =
         sensorUpdateFailureRepository.getBySensorIdAndResolvedTimeIsNull(sensor.getId());
-    failureToChange.setResolvedTime(LocalDateTime.now(clock));
+    failureToChange.setResolvedTime(ZonedDateTime.from(ZonedDateTime.now(clock)));
     sensorUpdateFailureRepository.save(failureToChange);
     log.info("Sensor {} is back online", sensor.getId());
   }

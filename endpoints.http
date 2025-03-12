@@ -5,8 +5,7 @@ GET http://localhost:8080/api/sensor/1
 GET http://localhost:8080/api/sensor/1/live
 
 ### Paginacja
-GET https://back.dev.skni.umcs.pl/api/sensor/1/data?startDate=2025-03-12T15:01:00&endDate=2025-03-12T15:10:00&page=0&
-    size=8
+GET https://back.dev.skni.umcs.pl/api/sensor/1/data?startDate=2025-03-12T15:14:00&page=0&size=8
 
 ### Paginacja
 GET http://localhost:8080/api/sensor/1/data?startDate=2025-03-12T15:01:00&page=0&size=8

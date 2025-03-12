@@ -1,11 +1,11 @@
 package skni.kamilG.skin_sensors_api.Sensor.Exception;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-public record ExceptionInfo(LocalDateTime errorTimestamp, String errorMessage, String request) {
+public record ExceptionInfo(ZonedDateTime errorTimestamp, String errorMessage, String request) {
 
   public ExceptionInfo(String errorMessage, String request, Clock clock) {
-    this(LocalDateTime.now(clock), errorMessage, request);
+    this(ZonedDateTime.now(clock), errorMessage, request);
   }
 }

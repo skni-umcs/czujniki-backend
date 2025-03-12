@@ -2,7 +2,7 @@ package skni.kamilG.skin_sensors_api.Sensor.Model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import lombok.*;
 
 @Builder
@@ -24,7 +24,7 @@ public class SensorData {
   @JoinColumn(name = "sensor_id", nullable = false)
   private Sensor sensor;
 
-  private LocalDateTime timestamp;
+  private ZonedDateTime timestamp;
 
   @Column(precision = 5, scale = 1)
   private BigDecimal temperature;

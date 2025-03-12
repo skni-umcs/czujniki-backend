@@ -3,7 +3,8 @@ package skni.kamilG.skin_sensors_api.Sensor.Controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ public class SensorController {
 
   private final ISensorService sensorService;
   private final ISensorUpdateService sensorUpdateService;
+  private final Clock clock;
 
   @GetMapping("/{id}")
   public ResponseEntity<SensorResponse> getSensorById(@PathVariable Short id) {
@@ -59,14 +61,14 @@ public class SensorController {
   public ResponseEntity<Page<SensorDataResponse>> getSensorDataById(
       @PathVariable Short id,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-          LocalDateTime startDate,
+          ZonedDateTime startDate,
       @RequestParam(required = false)
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           @PastOrPresent
-          LocalDateTime endDate,
+          ZonedDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.ASC)
           Pageable pageable) {
-    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now(clock);
     validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(
         sensorService.getSensorDataById(id, startDate, endDateToFilter, pageable));
@@ -75,14 +77,14 @@ public class SensorController {
   @GetMapping("/all/data")
   public ResponseEntity<Page<SensorDataResponse>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-          LocalDateTime startDate,
+          ZonedDateTime startDate,
       @RequestParam(required = false)
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           @PastOrPresent
-          LocalDateTime endDate,
+          ZonedDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now();
     validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDateToFilter, pageable));
   }
@@ -97,14 +99,14 @@ public class SensorController {
   public ResponseEntity<Page<SensorDataResponse>> getAllSensorsByFacultyData(
       @PathVariable String facultyName,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
-          LocalDateTime startDate,
+          ZonedDateTime startDate,
       @RequestParam(required = false)
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           @PastOrPresent
-          LocalDateTime endDate,
+          ZonedDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    LocalDateTime endDateToFilter = endDate != null ? endDate : LocalDateTime.now();
+    ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now(clock);
     validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(
         sensorService.getSensorsDataByFaculty(facultyName, startDate, endDateToFilter, pageable));
@@ -125,7 +127,7 @@ public class SensorController {
     return ResponseEntity.ok().build();
   }
 
-  private void validateDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+  private void validateDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
     if (startDate.isAfter(endDate)) {
       throw new InvalidDateRangeException("Start date must be before end date");
     }

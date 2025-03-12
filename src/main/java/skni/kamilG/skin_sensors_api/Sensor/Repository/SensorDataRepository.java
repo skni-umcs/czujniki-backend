@@ -1,6 +1,6 @@
 package skni.kamilG.skin_sensors_api.Sensor.Repository;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -25,11 +25,11 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
   List<SensorData> findLatestDataBySensorIds(@Param("sensorIds") List<Short> sensorIds);
 
   Optional<Page<SensorData>> findBySensorIdAndTimestampBetween(
-          Short sensorId, LocalDateTime start, LocalDateTime end, Pageable pageable);
+      Short sensorId, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
   Optional<Page<SensorData>> findByTimestampBetween(
-      LocalDateTime start, LocalDateTime end, Pageable pageable);
+      ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 
   Optional<Page<SensorData>> findBySensorInAndTimestampBetween(
-      List<Sensor> sensors, LocalDateTime start, LocalDateTime end, Pageable pageable);
+      List<Sensor> sensors, ZonedDateTime start, ZonedDateTime end, Pageable pageable);
 }

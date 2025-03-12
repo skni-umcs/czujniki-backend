@@ -1,6 +1,6 @@
 package skni.kamilG.skin_sensors_api.Sensor.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
@@ -16,19 +16,19 @@ public interface ISensorService {
   SensorResponse getSensorById(Short sensorId);
 
   Page<SensorDataResponse> getSensorDataById(
-      Short sensorId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+      Short sensorId, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
 
   List<SensorResponse> getAllSensors();
 
   Page<SensorDataResponse> getAllSensorsData(
-      LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+      ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
 
   @SneakyThrows(NoSensorsForFacultyException.class)
   List<SensorResponse> getSensorsByFaculty(String facultyName);
 
   @SneakyThrows(NoSensorsForFacultyException.class)
   Page<SensorDataResponse> getSensorsDataByFaculty(
-      String facultyName, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+      String facultyName, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
 
   void updateSensorsRefreshRates(List<SensorRequest> sensorRequestsToUpdateRates);
 }
