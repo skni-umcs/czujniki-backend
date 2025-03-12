@@ -36,6 +36,8 @@ public class Sensor implements Serializable {
 
   private Short refreshRate;
 
+  private Short floor;
+
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private Location location;

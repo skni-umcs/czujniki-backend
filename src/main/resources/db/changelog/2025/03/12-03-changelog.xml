@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="new floor column in sensorData" author="admin">
+        <addColumn tableName="sensor">
+            <column name="floor" type="SMALLINT"/>
+        </addColumn>
+        <update tableName="sensor">
+            <column name="floor" value="1"/>
+            <where>id = 1</where>
+        </update>
+        <update tableName="sensor">
+            <column name="floor" value="2"/>
+            <where>id = 2</where>
+        </update>
+        <update tableName="sensor">
+            <column name="floor" value="3"/>
+            <where>id = 3</where>
+        </update>
+        <update tableName="sensor">
+            <column name="floor" value="4"/>
+            <where>id = 4</where>
+        </update>
+        <update tableName="sensor">
+            <column name="floor" value="5"/>
+            <where>id = 5</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>

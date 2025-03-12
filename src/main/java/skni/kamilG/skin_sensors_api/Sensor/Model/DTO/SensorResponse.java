@@ -11,4 +11,5 @@ public record SensorResponse(
     Short temperature,
     Integer humidity,
     Integer pressure,
-    Location location) {}
+    Location location,
+    Short floor) {}
