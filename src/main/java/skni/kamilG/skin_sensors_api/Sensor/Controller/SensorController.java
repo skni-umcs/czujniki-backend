@@ -66,7 +66,7 @@ public class SensorController {
           @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
           @PastOrPresent
           ZonedDateTime endDate,
-      @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.ASC)
+      @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
     ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now(clock);
     validateDateRange(startDate, endDateToFilter);
