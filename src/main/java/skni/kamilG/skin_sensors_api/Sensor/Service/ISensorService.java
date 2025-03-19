@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorDataResponse;
-import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 
 public interface ISensorService {
@@ -29,6 +28,4 @@ public interface ISensorService {
   @SneakyThrows(NoSensorsForFacultyException.class)
   Page<SensorDataResponse> getSensorsDataByFaculty(
       String facultyName, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
-
-  void updateSensorsRefreshRates(List<SensorRequest> sensorRequestsToUpdateRates);
 }

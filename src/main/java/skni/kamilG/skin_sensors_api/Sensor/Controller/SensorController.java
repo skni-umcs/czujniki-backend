@@ -1,6 +1,5 @@
 package skni.kamilG.skin_sensors_api.Sensor.Controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.Clock;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorDataResponse;
-import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorService;
 import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorUpdateService;
@@ -110,21 +108,6 @@ public class SensorController {
     validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(
         sensorService.getSensorsDataByFaculty(facultyName, startDate, endDateToFilter, pageable));
-  }
-
-  /**
-   * Updates the refresh rates for multiple sensors. This endpoint is only accessible to authorized
-   * microservices.
-   *
-   * @param sensorRequests List of sensor refresh rate update requests
-   * @return HTTP 200 OK if successful
-   */
-  @PostMapping("/refresh-rates")
-  public ResponseEntity<Void> changeRefreshRate(
-      @Valid @RequestBody List<SensorRequest> sensorRequests) {
-    sensorService.updateSensorsRefreshRates(sensorRequests);
-    log.info("Received request to update refresh rates for {} sensors", sensorRequests.size());
-    return ResponseEntity.ok().build();
   }
 
   private void validateDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {

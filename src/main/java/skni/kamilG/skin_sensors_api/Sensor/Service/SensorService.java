@@ -15,7 +15,6 @@ import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorsForFacultyException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorDataResponse;
-import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorRequest;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorDataMapper;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorMapper;
@@ -124,30 +123,5 @@ public class SensorService implements ISensorService {
       throw new NoSensorsForFacultyException(facultyName);
     }
     return sensors;
-  }
-
-  @Override
-  @Transactional
-  public void updateSensorsRefreshRates(List<SensorRequest> sensorRequestsToUpdateRates) {
-    List<Sensor> sensorsToUpdate =
-        sensorRequestsToUpdateRates.stream()
-            .map(
-                request ->
-                    sensorRepository
-                        .findById(request.sensorId())
-                        .map(
-                            sensor -> {
-                              sensor.setRefreshRate(request.refreshRate());
-                              log.info(
-                                  "Updating sensor {} refresh rate to {} seconds",
-                                  sensor.getId(),
-                                  request.refreshRate());
-                              return sensor;
-                            })
-                        .orElseThrow(() -> new SensorNotFoundException(request.sensorId())))
-            .collect(Collectors.toList());
-    List<Sensor> savedSensors = sensorRepository.saveAll(sensorsToUpdate);
-    scheduler.updateTaskRates(savedSensors);
-    log.info("Updated refresh rates for {} sensors", savedSensors.size());
   }
 }

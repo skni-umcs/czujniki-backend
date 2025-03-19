@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +28,9 @@ import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorRepository;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorUpdateFailureRepository;
 
 /**
- * Executes aync process of updating all sensors current data. @See ISensorUpdateService for
- * definition of the methods
+ * Executes async process of updating all sensors current data.
+ *
+ * @see ISensorUpdateService for definition of the methods
  */
 @Slf4j
 @Service
@@ -45,6 +48,9 @@ public class SensorUpdateService implements ISensorUpdateService {
   @Value("${scheduler.default-rate:180}")
   private short defaultRate;
 
+  @Value("${see.timeout.limit-minutes:5}")
+  private int timeoutConnectionLimit;
+
   public List<Sensor> findSensorsToUpdate() {
     return sensorRepository.findByStatusNotOrderById(SensorStatus.OFFLINE);
   }
@@ -61,10 +67,10 @@ public class SensorUpdateService implements ISensorUpdateService {
         recoverSensorFromError(sensor);
       }
       sensorRepository.save(sensor);
-      sensorUpdatesSink.tryEmitNext(sensorMapper.mapToSensorResponse(sensor));
     } else {
       recordUpdateFailure(sensor);
     }
+    sensorUpdatesSink.tryEmitNext(sensorMapper.mapToSensorResponse(sensor));
   }
 
   private void recordUpdateFailure(Sensor sensor) {
@@ -77,7 +83,7 @@ public class SensorUpdateService implements ISensorUpdateService {
     sensor.setStatus(SensorStatus.ERROR);
 
     sensorUpdateFailureRepository.save(
-        new SensorUpdateFailure(ZonedDateTime.from(ZonedDateTime.now(clock)), warning, sensor));
+        new SensorUpdateFailure(ZonedDateTime.now(clock), warning, sensor));
     sensorRepository.save(sensor);
   }
 
@@ -85,13 +91,49 @@ public class SensorUpdateService implements ISensorUpdateService {
     sensor.setStatus(SensorStatus.ONLINE);
     SensorUpdateFailure failureToChange =
         sensorUpdateFailureRepository.getBySensorIdAndResolvedTimeIsNull(sensor.getId());
-    failureToChange.setResolvedTime(ZonedDateTime.from(ZonedDateTime.now(clock)));
+    failureToChange.setResolvedTime(ZonedDateTime.now(clock));
     sensorUpdateFailureRepository.save(failureToChange);
     log.info("Sensor {} is back online", sensor.getId());
   }
 
+  /**
+   * Creates a heartbeat flux that emits keepalive events at regular intervals. The heartbeat will
+   * automatically stop when the source flux completes or errors.
+   *
+   * @param interval The time interval between heartbeats
+   * @param sourceFlux The source flux to "monitor" for completion/errors
+   * @return A flux of heartbeat ServerSentEvents
+   */
+  private Flux<ServerSentEvent<SensorResponse>> createHeartbeatFlux(
+      Duration interval, Flux<?> sourceFlux) {
+
+    AtomicBoolean isCancelled = new AtomicBoolean(false);
+
+    return Flux.interval(interval)
+        .takeUntilOther(
+            sourceFlux
+                .materialize()
+                .filter(signal -> signal.isOnComplete() || signal.isOnError())
+                .doOnNext(signal -> isCancelled.set(true))
+                .then(Mono.never()))
+        .takeWhile(tick -> !isCancelled.get())
+        .map(
+            tick -> {
+              ZonedDateTime now = ZonedDateTime.now(clock);
+              String formattedTime = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+              return ServerSentEvent.<SensorResponse>builder()
+                  .id("heartbeat-" + formattedTime)
+                  .comment("heartbeat")
+                  .build();
+            })
+        .doOnSubscribe(s -> log.debug("Heartbeat started"))
+        .doFinally(signal -> log.debug("Heartbeat stopped: {}", signal));
+  }
+
   @Override
   public Flux<ServerSentEvent<SensorResponse>> getAllSensorsUpdatesAsSSE() {
+    Flux<Long> ttl = Mono.delay(Duration.ofMinutes(timeoutConnectionLimit)).flux();
+
     Flux<ServerSentEvent<SensorResponse>> initialState =
         Flux.defer(
             () -> {
@@ -102,40 +144,60 @@ public class SensorUpdateService implements ISensorUpdateService {
 
               log.debug(
                   "New client connected, sending initial state of {} sensors", currentState.size());
-
-              return Flux.fromIterable(currentState).map(this::createServerSentEvent); // initial
+              return Flux.fromIterable(currentState).map(this::createServerSentEvent);
             });
 
     Flux<ServerSentEvent<SensorResponse>> updates =
-        sensorUpdatesSink.asFlux().map(this::createServerSentEvent); // update
+        sensorUpdatesSink
+            .asFlux()
+            .map(this::createServerSentEvent)
+            .doOnError(e -> log.error("Error in sensor updates sink: {}", e.getMessage()));
+
+    Flux<ServerSentEvent<SensorResponse>> dataFlux = Flux.merge(initialState, updates);
 
     Flux<ServerSentEvent<SensorResponse>> heartbeats =
-        Flux.interval(heartbeatInterval)
-            .map(
-                tick ->
-                    ServerSentEvent.<SensorResponse>builder()
-                        .id("heartbeat-" + System.currentTimeMillis())
-                        .comment("heartbeat")
-                        .build());
+        createHeartbeatFlux(heartbeatInterval, dataFlux);
 
-    return Flux.merge(initialState, updates, heartbeats)
+    return Flux.merge(dataFlux, heartbeats)
         .onErrorResume(
             IOException.class,
             e -> {
-              if (e.getMessage().contains("Broken pipe")
-                  || e.getMessage().contains("Connection reset by peer")) {
-                log.debug("Client disconnected from SSE stream (normal behavior)");
+              if (isClientDisconnectError(e)) {
+                log.debug(
+                    "Client disconnected from SSE stream (normal behavior): {}", e.getMessage());
                 return Mono.empty();
               }
               log.warn("IO error in SSE stream: {}", e.getMessage());
-              return Mono.error(e);
+              return Mono.empty();
             })
         .onErrorResume(
             e -> {
-              log.error("Unhandled error in SSE stream: {}", e.getMessage());
+              log.error("Unhandled error in SSE stream: {}", e.getMessage(), e);
               return Mono.empty();
             })
-        .timeout(Duration.ofMinutes(15));
+        .takeUntilOther(ttl)
+        .doOnCancel(() -> log.debug("SSE stream cancelled"))
+        .doOnComplete(() -> log.debug("SSE stream completed"))
+        .doOnTerminate(() -> log.debug("SSE stream terminated"));
+  }
+
+  /**
+   * Checks if an IOException is caused by a client disconnection.
+   *
+   * @param e The IOException to check
+   * @return true if the exception is likely caused by client disconnection
+   */
+  private boolean isClientDisconnectError(IOException e) {
+    String message = e.getMessage();
+    if (message == null) {
+      return false;
+    }
+
+    return message.contains("Broken pipe")
+        || message.contains("Connection reset by peer")
+        || message.contains("An established connection was aborted")
+        || message.contains("An existing connection was forcibly closed")
+        || message.contains("socket write error");
   }
 
   @Override
@@ -153,9 +215,17 @@ public class SensorUpdateService implements ISensorUpdateService {
   }
 
   private ServerSentEvent<SensorResponse> createServerSentEvent(SensorResponse sensor) {
-    return ServerSentEvent.<SensorResponse>builder()
-        .id(sensor.id() + "-" + System.currentTimeMillis())
-        .data(sensor)
-        .build();
+    ZonedDateTime now = ZonedDateTime.now(clock);
+    String formattedTime = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+    ServerSentEvent<SensorResponse> event =
+        ServerSentEvent.<SensorResponse>builder()
+            .id(sensor.id() + "-" + formattedTime)
+            .event("sensor-update")
+            .data(sensor)
+            .build();
+
+    log.debug("Created SSE with id: {}", event.id());
+    return event;
   }
 }

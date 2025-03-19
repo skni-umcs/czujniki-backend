@@ -43,19 +43,23 @@ public class Scheduler {
   private void startDefaultTasks() {
     List<Sensor> activeSensors = sensorUpdateService.findSensorsToUpdate();
     updateTaskRates(activeSensors);
-    log.info(
-        "Started {} default sensor tasks with rate {} seconds", activeSensors.size(), defaultRate);
+    log.info("Started {} default sensor tasks", activeSensors.size());
   }
 
   public void updateTaskRates(List<Sensor> sensorsToUpdate) {
     sensorsToUpdate.forEach(
-        (sensor) -> {
+        sensor -> {
+          ScheduledFuture<?> existingTask = scheduledTasks.get(sensor.getId());
+          if (existingTask != null) {
+            existingTask.cancel(false);
+            log.debug("Cancelled existing task for sensor {}", sensor.getId());
+          }
+          short rate = Optional.ofNullable(sensor.getRefreshRate()).orElse(defaultRate);
           ScheduledFuture<?> newTask =
               taskScheduler.scheduleAtFixedRate(
-                  () -> updateSingleSensor(sensor),
-                  Duration.ofSeconds(
-                      Optional.ofNullable(sensor.getRefreshRate()).orElse(defaultRate)));
+                  () -> updateSingleSensor(sensor), Duration.ofSeconds(rate));
           scheduledTasks.put(sensor.getId(), newTask);
+          log.debug("Scheduled task for sensor {} with rate {} seconds", sensor.getId(), rate);
         });
   }
 

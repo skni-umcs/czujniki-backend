@@ -3,6 +3,7 @@ package skni.kamilG.skin_sensors_api.Sensor.Exception;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -15,9 +16,10 @@ import org.springframework.web.context.request.WebRequest;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-  private Clock clock;
+  private final Clock clock;
 
   @ExceptionHandler(NoSensorDataFoundException.class)
   public ResponseEntity<ExceptionInfo> handleNoSensorDataFoundException(
