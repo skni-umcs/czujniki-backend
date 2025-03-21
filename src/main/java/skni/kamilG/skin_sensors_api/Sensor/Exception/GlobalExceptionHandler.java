@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IOException.class)
   public ResponseEntity<Void> handleIOException(IOException ex) {
     if (ex.getMessage().contains("Broken pipe")) {
-      log.debug("Klient zamknął połączenie (Broken pipe)");
+      log.debug("Client closed connection (Broken pipe)");
       return ResponseEntity.noContent().build();
     }
 
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(ClientAbortException.class)
   public ResponseEntity<Void> handleClientAbortException(ClientAbortException ex) {
-    log.debug("Klient przerwał połączenie: {}", ex.getMessage());
+    log.debug("Client broke connection: {}", ex.getMessage());
     return ResponseEntity.noContent().build();
   }
 
