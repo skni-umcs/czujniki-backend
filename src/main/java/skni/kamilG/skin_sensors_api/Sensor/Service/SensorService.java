@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorDataFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.NoSensorsForFacultyException;
@@ -21,11 +20,9 @@ import skni.kamilG.skin_sensors_api.Sensor.Model.Mapper.SensorMapper;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorDataRepository;
 import skni.kamilG.skin_sensors_api.Sensor.Repository.SensorRepository;
-import skni.kamilG.skin_sensors_api.Threads.Scheduler;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 @AllArgsConstructor
 public class SensorService implements ISensorService {
 
@@ -33,7 +30,6 @@ public class SensorService implements ISensorService {
   private final SensorDataRepository sensorDataRepository;
   private final SensorMapper sensorMapper;
   private final SensorDataMapper sensorDataMapper;
-  private final Scheduler scheduler;
 
   @Override
   public SensorResponse getSensorById(Short sensorId) {

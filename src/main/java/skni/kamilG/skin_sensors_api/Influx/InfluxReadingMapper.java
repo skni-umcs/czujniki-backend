@@ -3,7 +3,6 @@ package skni.kamilG.skin_sensors_api.Influx;
 import java.time.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.SensorNotFoundException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.Sensor;
 import skni.kamilG.skin_sensors_api.Sensor.Model.SensorData;
@@ -16,9 +15,7 @@ public class InfluxReadingMapper {
 
   private final SensorRepository sensorRepository;
   private final SensorDataRepository sensorDataRepository;
-  private final Clock clock;
 
-  @Transactional
   public SensorData toSensorData(InfluxReading reading) {
 
     Sensor sensor =
