@@ -28,4 +28,6 @@ public interface ISensorService {
   @SneakyThrows(NoSensorsForFacultyException.class)
   Page<SensorDataResponse> getSensorsDataByFaculty(
       String facultyName, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
+
+  Page<SensorResponse> searchSensors(String searchTerm, Pageable pageable);
 }

@@ -19,7 +19,7 @@ public class SensorAdminController {
 
   private final IAdminService adminSensorService;
 
-  @PostMapping("/batch/refresh-rates")
+  @PatchMapping("/batch/refresh-rates")
   public ResponseEntity<Void> changeRefreshRateBatch(
       @Valid @RequestBody List<RefreshRateCommand> sensorsRequestToChangeRateUpdates) {
     adminSensorService.updateSensors(sensorsRequestToChangeRateUpdates);
@@ -29,7 +29,7 @@ public class SensorAdminController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/batch/status")
+  @PatchMapping("/batch/status")
   public ResponseEntity<Void> changeStatusSingleSensor(
       @Valid @RequestBody List<StatusCommand> sensorsRequestToChangeStatusChangeRequests) {
     adminSensorService.updateSensors(sensorsRequestToChangeStatusChangeRequests);

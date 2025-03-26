@@ -12,17 +12,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import skni.kamilG.skin_sensors_api.Sensor.Exception.InvalidDateRangeException;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorDataResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
 import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorService;
-import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorUpdateService;
 
 @Slf4j
 @Validated
@@ -32,7 +28,6 @@ import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorUpdateService;
 public class SensorController {
 
   private final ISensorService sensorService;
-  private final ISensorUpdateService sensorUpdateService;
   private final Clock clock;
 
   @GetMapping("/{id}")
@@ -45,14 +40,11 @@ public class SensorController {
     return ResponseEntity.ok(sensorService.getAllSensors());
   }
 
-  @GetMapping(value = "/{sensorId}/live", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<ServerSentEvent<SensorResponse>> streamSingleSensor(@PathVariable Short sensorId) {
-    return sensorUpdateService.getSensorUpdatesAsSSE(sensorId);
-  }
-
-  @GetMapping(value = "/all/live", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<ServerSentEvent<SensorResponse>> streamAllSensorsUpdates() {
-    return sensorUpdateService.getAllSensorsUpdatesAsSSE();
+  @GetMapping("/all/search")
+  public ResponseEntity<Page<SensorResponse>> searchSensors(
+      @RequestParam String searchTerm,
+      @PageableDefault(size = 8, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+    return ResponseEntity.ok(sensorService.searchSensors(searchTerm, pageable));
   }
 
   @GetMapping("/{id}/data")

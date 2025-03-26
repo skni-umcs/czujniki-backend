@@ -27,14 +27,14 @@ GET http://localhost:8080/api/sensor/faculty/WPIA/data?startDate=2025-03-03T23:0
     size=8
 
 ###
-POST http://localhost:8080/admin/sensor/batch/status
-X-API-KEY: 
+PATCH  http://localhost:8080/admin/sensor/batch/status
+X-API-KEY: sensors-api_20250311_gbxc2fr7ZiPNT_XIjWk2uLOKwPBoK8FAEPgz2caE-FQ
 Content-Type: application/json
 
 [
   {
     "sensorId": 1,
-    "status": "OFFLINE"
+    "status": "ONLINE"
   }
 ]
 

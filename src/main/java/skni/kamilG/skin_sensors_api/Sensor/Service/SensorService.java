@@ -104,6 +104,13 @@ public class SensorService implements ISensorService {
         .orElseThrow(() -> new NoSensorDataFoundException(startDate, endDate));
   }
 
+  @Override
+  public Page<SensorResponse> searchSensors(String searchTerm, Pageable pageable) {
+    return sensorRepository
+        .searchSensors(searchTerm, pageable)
+        .map(sensorMapper::mapToSensorResponse);
+  }
+
   private void validateDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
     if (startDate.isAfter(endDate)) {
       throw new InvalidDateRangeException("Start date must be before or equal to end date");

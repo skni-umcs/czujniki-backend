@@ -1,12 +1,10 @@
 package skni.kamilG.skin_sensors_api.Sensor.Service;
 
-import org.springframework.http.codec.ServerSentEvent;
-import reactor.core.publisher.Flux;
-import skni.kamilG.skin_sensors_api.Sensor.Model.DTO.SensorResponse;
+import java.util.List;
+import skni.kamilG.skin_sensors_api.Sensor.Model.Sensor;
 
 public interface ISensorUpdateService {
+  List<Sensor> findSensorsToUpdate();
 
-  Flux<ServerSentEvent<SensorResponse>> getSensorUpdatesAsSSE(Short sensorId);
-
-  Flux<ServerSentEvent<SensorResponse>> getAllSensorsUpdatesAsSSE();
+  void updateSingleSensor(Sensor sensor);
 }
