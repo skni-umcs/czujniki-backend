@@ -16,7 +16,6 @@ influxdb:
 
 scheduler:
   default-rate: 180
-  thread-pool-size: 5
 
 logging:
   level:

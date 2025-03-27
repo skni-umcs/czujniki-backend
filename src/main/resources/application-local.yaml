@@ -20,7 +20,6 @@ influxdb:
 
 scheduler:
   default-rate: 60
-  thread-pool-size: 5
 
 batch:
   size: 5
