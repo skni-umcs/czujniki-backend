@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  mvc:
+    async:
+      request-timeout: 720000
+
+influxdb:
+  url: ${INFLUXDB_URL}
+  token: ${INFLUXDB_TOKEN}
+  org: SKNI
+  bucket: czujniki
+  timeRange: 60s
+
+scheduler:
+  default-rate: 180
+  thread-pool-size: 5
+
+logging:
+  level:
+    org.springframework.web.servlet.resource.ResourceHttpRequestHandler: ERROR
+
+batch:
+  size: 5
+
+sse:
+  timeout:
+    limit-minutes: 15
+
+

@@ -1,0 +1,35 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_schema: weathergrid
+    hibernate:
+      ddl-auto: validate
+  security:
+    basic:
+      enabled: false
+    user:
+      name: none
+      password: none
+  liquibase:
+    change-log: db/changelog/master.xml
+    default-schema: weathergrid
+    liquibase-schema: weathergrid
+  application:
+    name: weathergrid
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+server:
+  port: 8080
+
+app:
+  timezone: UTC
+
+api:
+  key: ${API_KEY}

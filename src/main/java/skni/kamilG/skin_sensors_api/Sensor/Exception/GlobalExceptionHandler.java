@@ -13,6 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @ControllerAdvice
@@ -86,5 +88,12 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new ExceptionInfo(errorMessage, request.getDescription(false), clock));
+  }
+
+  @ExceptionHandler(AsyncRequestTimeoutException.class)
+  public ResponseEntity<SseEmitter> handleAsyncRequestTimeoutException(
+      AsyncRequestTimeoutException ex) {
+    log.error("SSE connection timeout: {}", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

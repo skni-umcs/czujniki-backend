@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: weathergrid
+  mvc:
+    async:
+      request-timeout: 360000
+
+influxdb:
+  url: ${INFLUXDB_URL}
+  token: ${INFLUXDB_TOKEN}
+  org: SKNI
+  bucket: czujniki
+  timeRange: 60s
+
+scheduler:
+  default-rate: 60
+  thread-pool-size: 5
+
+batch:
+  size: 5
+
+logging:
+  level:
+    skni.kamilG.skni_sensors_api: debug
+    org.hibernate: info
+
+sse:
+  timeout:
+    limit-minutes: 5
