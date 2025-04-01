@@ -26,8 +26,12 @@ batch:
 
 logging:
   level:
-    skni.kamilG.skni_sensors_api: debug
-    org.hibernate: info
+    root: INFO
+    skni.kamilG: DEBUG
+    org.springframework: INFO
+    org.hibernate: INFO
+    com.zaxxer.hikari: INFO
+    org.apache: INFO
 
 sse:
   timeout:

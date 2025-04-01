@@ -5,7 +5,6 @@ import java.time.Clock;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @ControllerAdvice
@@ -66,14 +66,9 @@ public class GlobalExceptionHandler {
       return ResponseEntity.noContent().build();
     }
 
-    log.error("Błąd IO: ", ex);
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-  }
+    log.error("Error IO: ", ex);
 
-  @ExceptionHandler(ClientAbortException.class)
-  public ResponseEntity<Void> handleClientAbortException(ClientAbortException ex) {
-    log.debug("Client broke connection: {}", ex.getMessage());
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -93,7 +88,28 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AsyncRequestTimeoutException.class)
   public ResponseEntity<SseEmitter> handleAsyncRequestTimeoutException(
       AsyncRequestTimeoutException ex) {
-    log.error("SSE connection timeout: {}", ex.getMessage());
+
+    log.info("SSE connection timeout: {}", ex.getMessage());
+
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @ExceptionHandler(SseConnectionException.class)
+  public ResponseEntity<ExceptionInfo> handleSseConnectionException(
+      SseConnectionException ex, WebRequest request) {
+
+    log.error("SSE connection error: {}", ex.getMessage());
+
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(new ExceptionInfo(ex.getMessage(), request.getDescription(false), clock));
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  public ResponseEntity<ExceptionInfo> handleNoResourceFoundException(WebRequest request) {
+
+    log.warn("Attempted to access non-existent resource: {}", request.getDescription(false));
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ExceptionInfo("Resource not found", request.getDescription(false), clock));
   }
 }

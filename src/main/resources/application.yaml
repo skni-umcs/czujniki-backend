@@ -36,3 +36,13 @@ app:
 
 api:
   key: ${API_KEY}
+
+cors:
+  frontend:
+    dev:
+      url: ${FRONT_DEV_URL}
+    prd:
+      url: ${FRONT_PRD_URL}
+  admin:
+    url: ${ADMIN_URL}
+  max-age: 3600

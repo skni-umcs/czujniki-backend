@@ -22,6 +22,6 @@ public class ApplicationConfig {
 
   @Bean
   public Duration heartbeatInterval() {
-    return Duration.ofSeconds(25);
+    return Duration.ofSeconds(15);
   }
 }
