@@ -34,9 +34,7 @@ public class LiveController {
     log.info("New SSE connection request for client: {}, sensor: {}", clientId, sensorId);
     SseEmitter emitter = sseEmitterService.createSseEmitter(clientId, sensorId);
 
-    return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_EVENT_STREAM)
-            .body(emitter);
+    return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(emitter);
   }
 
   @GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -52,9 +50,7 @@ public class LiveController {
 
     String clientId = UUID.randomUUID().toString();
     log.info("New SSE connection request for client: {}, all sensors", clientId);
-    SseEmitter emitter =  sseEmitterService.createSseEmitter(clientId, null);
-    return ResponseEntity.ok()
-            .contentType(MediaType.TEXT_EVENT_STREAM)
-            .body(emitter);
+    SseEmitter emitter = sseEmitterService.createSseEmitter(clientId, null);
+    return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(emitter);
   }
 }
