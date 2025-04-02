@@ -58,6 +58,13 @@ public class SensorService implements ISensorService {
   }
 
   @Override
+  public Page<SensorResponse> findAllWithCustomSorting(Pageable pageable) {
+    log.debug("Getting all sensors with pagination: {}", pageable);
+    Page<Sensor> sensorPage = sensorRepository.findAllWithCustomSorting(pageable);
+    return sensorPage.map(sensorMapper::mapToSensorResponse);
+  }
+
+  @Override
   public List<SensorResponse> getAllSensors() {
     log.debug("Getting all sensors");
     return sensorRepository.findAll().stream()

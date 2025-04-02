@@ -17,6 +17,8 @@ public interface ISensorService {
   Page<SensorDataResponse> getSensorDataById(
       Short sensorId, ZonedDateTime startDate, ZonedDateTime endDate, Pageable pageable);
 
+  Page<SensorResponse> findAllWithCustomSorting(Pageable pageable);
+
   List<SensorResponse> getAllSensors();
 
   Page<SensorDataResponse> getAllSensorsData(

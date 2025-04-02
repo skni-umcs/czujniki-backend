@@ -36,8 +36,9 @@ public class SensorController {
   }
 
   @GetMapping("/all")
-  public ResponseEntity<List<SensorResponse>> getAllSensors() {
-    return ResponseEntity.ok(sensorService.getAllSensors());
+  public ResponseEntity<Page<SensorResponse>> getAllSensors(
+      @PageableDefault(size = 20) Pageable pageable) {
+    return ResponseEntity.ok(sensorService.findAllWithCustomSorting(pageable));
   }
 
   @GetMapping("/all/search")

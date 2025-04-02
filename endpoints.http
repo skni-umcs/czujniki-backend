@@ -2,7 +2,7 @@
 GET http://localhost:8080/api/sensor/1
 
 ###
-GET http://localhost:8080/api/sensor/1/live
+GET http://localhost:8080/live-api/sensor/1
 
 ### Paginacja
 GET https://back.dev.skni.umcs.pl/api/sensor/1/data?startDate=2025-03-12T15:14:00&page=0&size=8
@@ -10,11 +10,11 @@ GET https://back.dev.skni.umcs.pl/api/sensor/1/data?startDate=2025-03-12T15:14:0
 ### Paginacja
 GET http://localhost:8080/api/sensor/1/data?startDate=2025-03-12T15:23:45.000Z&page=1&size=8
 
-###
+### Paginacja
 GET http://localhost:8080/api/sensor/all
 
 ###
-GET http://localhost:8080/api/sensor/all/live
+GET http://localhost:8080/live-api/sensor/all
 
 ### Paginacja
 GET http://localhost:8080/api/sensor/all/data?startDate=2025-03-03T23:00:00&endDate=2025-03-03T23:30:00&page=0&size=8
@@ -28,13 +28,13 @@ GET http://localhost:8080/api/sensor/faculty/WPIA/data?startDate=2025-03-03T23:0
 
 ###
 PATCH  http://localhost:8080/admin/sensor/batch/status
-X-API-KEY: sensors-api_20250311_gbxc2fr7ZiPNT_XIjWk2uLOKwPBoK8FAEPgz2caE-FQ
+X-API-KEY: ${API_KEY}
 Content-Type: application/json
 
 [
   {
     "sensorId": 1,
-    "status": "ONLINE"
+    "status": "OFFLINE"
   }
 ]
 

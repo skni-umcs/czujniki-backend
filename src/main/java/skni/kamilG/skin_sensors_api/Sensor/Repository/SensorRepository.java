@@ -15,6 +15,7 @@ import skni.kamilG.skin_sensors_api.Sensor.Model.SensorStatus;
 
 @Repository
 public interface SensorRepository extends JpaRepository<Sensor, Short> {
+
   @NonNull
   Optional<Sensor> findById(@NotNull Short id);
 
@@ -49,4 +50,19 @@ public interface SensorRepository extends JpaRepository<Sensor, Short> {
            OR CAST(s.floor AS string) = :searchTerm
         """)
   Page<Sensor> searchSensors(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+  @Query(
+      value =
+          """
+        SELECT s FROM Sensor s
+        ORDER BY
+            CASE
+                WHEN s.status = 'ONLINE' THEN 0
+                WHEN s.status = 'ERROR' THEN 1
+                ELSE 2
+            END,
+            s.id ASC
+        """,
+      countQuery = "SELECT COUNT(s) FROM Sensor s")
+  Page<Sensor> findAllWithCustomSorting(Pageable pageable);
 }
