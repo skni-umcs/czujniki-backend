@@ -52,3 +52,8 @@ management:
     web:
       exposure:
         include: health
+  health:
+    db:
+      enabled: true
+    influx:
+      enabled: true
