@@ -37,15 +37,13 @@ public class SensorController {
 
   @GetMapping
   public ResponseEntity<Page<SensorResponse>> getAllSensors(
-      @PageableDefault(size = 20) Pageable pageable) {
-    return ResponseEntity.ok(sensorService.findAllWithCustomSorting(pageable));
-  }
-
-  @GetMapping("/search")
-  public ResponseEntity<Page<SensorResponse>> searchSensors(
-      @RequestParam String searchTerm,
+      @RequestParam(required = false) String searchTerm,
       @PageableDefault(size = 8, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-    return ResponseEntity.ok(sensorService.searchSensors(searchTerm, pageable));
+
+    if (searchTerm != null && !searchTerm.isBlank()) {
+      return ResponseEntity.ok(sensorService.searchSensors(searchTerm, pageable));
+    }
+    return ResponseEntity.ok(sensorService.findAllWithCustomSorting(pageable));
   }
 
   @GetMapping("/{id}/data")
