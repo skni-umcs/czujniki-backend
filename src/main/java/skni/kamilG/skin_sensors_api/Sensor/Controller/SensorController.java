@@ -23,7 +23,7 @@ import skni.kamilG.skin_sensors_api.Sensor.Service.ISensorService;
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("/api/sensor")
+@RequestMapping("/api/sensors")
 @RequiredArgsConstructor
 public class SensorController {
 
@@ -35,13 +35,13 @@ public class SensorController {
     return ResponseEntity.ok(sensorService.getSensorById(id));
   }
 
-  @GetMapping("/all")
+  @GetMapping
   public ResponseEntity<Page<SensorResponse>> getAllSensors(
       @PageableDefault(size = 20) Pageable pageable) {
     return ResponseEntity.ok(sensorService.findAllWithCustomSorting(pageable));
   }
 
-  @GetMapping("/all/search")
+  @GetMapping("/search")
   public ResponseEntity<Page<SensorResponse>> searchSensors(
       @RequestParam String searchTerm,
       @PageableDefault(size = 8, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -65,7 +65,7 @@ public class SensorController {
         sensorService.getSensorDataById(id, startDate, endDateToFilter, pageable));
   }
 
-  @GetMapping("/all/data")
+  @GetMapping("/data")
   public ResponseEntity<Page<SensorDataResponse>> getAllSensorData(
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @NotNull @PastOrPresent
           ZonedDateTime startDate,
@@ -75,7 +75,7 @@ public class SensorController {
           ZonedDateTime endDate,
       @PageableDefault(size = 8, sort = "timestamp", direction = Sort.Direction.DESC)
           Pageable pageable) {
-    ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now();
+    ZonedDateTime endDateToFilter = endDate != null ? endDate : ZonedDateTime.now(clock);
     validateDateRange(startDate, endDateToFilter);
     return ResponseEntity.ok(sensorService.getAllSensorsData(startDate, endDateToFilter, pageable));
   }

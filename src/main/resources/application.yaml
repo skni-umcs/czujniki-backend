@@ -46,3 +46,9 @@ cors:
   admin:
     url: ${ADMIN_URL}
   max-age: 3600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -13,7 +13,7 @@ import skni.kamilG.skin_sensors_api.LiveData.Service.ISseEmitterService;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/live-api/sensor")
+@RequestMapping("/live-api/sensors")
 public class LiveController {
 
   private final ISseEmitterService sseEmitterService;
@@ -37,7 +37,7 @@ public class LiveController {
     return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(emitter);
   }
 
-  @GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public ResponseEntity<SseEmitter> streamAllSensorsUpdates(
       @SuppressWarnings("unused") @RequestHeader(value = "Last-Event-ID", required = false)
           String lastEventId,
