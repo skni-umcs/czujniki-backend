@@ -40,7 +40,6 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    // Extract the requested information
     String clientIp = extractClientIpAddress(request);
     String userAgent = request.getHeader("User-Agent");
     String referer = request.getHeader("Referer");
@@ -48,12 +47,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     String requestUri = request.getRequestURI();
 
     try {
-      // Execute the rest of the filter chain
       filterChain.doFilter(request, response);
     } finally {
       int status = response.getStatus();
-
-      // Log just the three requested pieces of information
       log.info(
           "Request: [{}] {} | IP: {} | User-Agent: {} | Referer: {} | Status: {}",
           requestMethod,
@@ -63,6 +59,12 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
           referer != null ? referer : "Not provided",
           status);
     }
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String requestUri = request.getRequestURI();
+    return requestUri.startsWith("/actuator");
   }
 
   /**
