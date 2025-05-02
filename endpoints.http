@@ -27,14 +27,30 @@ GET http://localhost:8080/api/sensor/faculty/WPIA/data?startDate=2025-03-03T23:0
     size=8
 
 ###
-PATCH  http://localhost:8080/admin/sensor/batch/status
+PATCH  https://back.dev.skni.umcs.pl/admin/sensor/batch/refresh-rates
 X-API-KEY: ${API_KEY}
 Content-Type: application/json
 
 [
   {
-    "sensorId": 1,
-    "status": "OFFLINE"
+    "sensorId": 7,
+    "refreshRate": 60
+  }
+]
+
+###
+PATCH  https://back.dev.skni.umcs.pl/admin/sensor/batch/status
+X-API-KEY: ${API_KEY}
+Content-Type: application/json
+
+[
+  {
+    "sensorId": 6,
+    "status": "ONLINE"
+  },
+  {
+    "sensorId": 7,
+    "status": "ONLINE"
   }
 ]
 
