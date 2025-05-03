@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<SseEmitter> handleAsyncRequestTimeoutException(
       AsyncRequestTimeoutException ex) {
 
-    log.info("SSE connection timeout: {}", ex.getMessage());
+    log.debug("SSE connection timeout");
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }

@@ -1,24 +1,24 @@
-//package skni.kamilG.skin_sensors_api.Common.Config;
+// package skni.kamilG.skin_sensors_api.Common.Config;
 //
-//import jakarta.servlet.FilterChain;
-//import jakarta.servlet.ServletException;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpServletResponse;
-//import java.io.IOException;
-//import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.List;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Component;
-//import org.springframework.web.filter.OncePerRequestFilter;
+// import jakarta.servlet.FilterChain;
+// import jakarta.servlet.ServletException;
+// import jakarta.servlet.http.HttpServletRequest;
+// import jakarta.servlet.http.HttpServletResponse;
+// import java.io.IOException;
+// import java.util.Arrays;
+// import java.util.Collections;
+// import java.util.List;
+// import lombok.extern.slf4j.Slf4j;
+// import org.springframework.stereotype.Component;
+// import org.springframework.web.filter.OncePerRequestFilter;
 //
-///**
+/// **
 // * Simple request logging filter that captures client IP, User-Agent, and Referer for all incoming
 // * HTTP requests.
 // */
-//@Component
-//@Slf4j
-//public class RequestLoggingFilter extends OncePerRequestFilter {
+// @Component
+// @Slf4j
+// public class RequestLoggingFilter extends OncePerRequestFilter {
 //
 //  private static final List<String> IP_HEADERS =
 //      Collections.unmodifiableList(
@@ -68,7 +68,8 @@
 //  }
 //
 //  /**
-//   * Extracts the client IP address from the request, checking various headers to handle proxies and
+//   * Extracts the client IP address from the request, checking various headers to handle proxies
+// and
 //   * load balancers.
 //   *
 //   * @param request The HTTP request
@@ -83,4 +84,4 @@
 //        .findFirst()
 //        .orElse(request.getRemoteAddr());
 //  }
-//}
+// }

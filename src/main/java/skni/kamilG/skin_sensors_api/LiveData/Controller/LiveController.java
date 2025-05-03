@@ -31,7 +31,7 @@ public class LiveController {
     response.setHeader("Content-Type", "text/event-stream;charset=UTF-8");
 
     String clientId = UUID.randomUUID().toString();
-    log.info("New SSE connection request for client: {}, sensor: {}", clientId, sensorId);
+    log.debug("New SSE connection request for client: {}, sensor: {}", clientId, sensorId);
     SseEmitter emitter = sseEmitterService.createSseEmitter(clientId, sensorId);
 
     return ResponseEntity.ok().contentType(MediaType.TEXT_EVENT_STREAM).body(emitter);
