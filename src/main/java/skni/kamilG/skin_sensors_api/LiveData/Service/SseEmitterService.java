@@ -127,7 +127,8 @@ public class SseEmitterService implements ISseEmitterService {
                 emitter.send(event);
                 log.debug("Sent initial state for sensor {} to client {}", sensorId, clientId);
               } catch (IOException e) {
-                log.warn("Failed to send initial state to client {}: {}", clientId, e.getMessage());
+                log.debug(
+                    "Failed to send initial state to client {}: {}", clientId, e.getMessage());
                 removeEmitter(clientId);
               }
             }
@@ -183,7 +184,7 @@ public class SseEmitterService implements ISseEmitterService {
         });
     emitter.onError(
         e -> {
-          log.warn("SSE error for client {}: {}", clientId, e.getMessage());
+          log.debug("SSE error for client {}: {}", clientId, e.getMessage());
           removeEmitter(clientId);
         });
     return emitter;
