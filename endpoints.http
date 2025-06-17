@@ -33,7 +33,15 @@ Content-Type: application/json
 
 [
   {
-    "sensorId": 7,
+    "sensorId": 4,
+    "refreshRate": 60
+  },
+  {
+    "sensorId": 5,
+    "refreshRate": 60
+  },
+  {
+    "sensorId": 3,
     "refreshRate": 60
   }
 ]
@@ -45,14 +53,57 @@ Content-Type: application/json
 
 [
   {
-    "sensorId": 6,
+    "sensorId": 1,
     "status": "ONLINE"
   },
   {
-    "sensorId": 7,
+    "sensorId": 2,
+    "status": "ONLINE"
+  },
+  {
+    "sensorId": 3,
+    "status": "ONLINE"
+  },
+  {
+    "sensorId": 4,
+    "status": "ONLINE"
+  },
+  {
+    "sensorId": 5,
     "status": "ONLINE"
   }
 ]
+
+###
+PATCH  https://back.dev.skni.umcs.pl/admin/sensor/batch/status
+X-API-KEY: ${API_KEY}
+Content-Type: application/json
+
+[
+  {
+    "sensorId": 1,
+    "status": "OFFLINE"
+  },
+  {
+    "sensorId": 2,
+    "status": "OFFLINE"
+  },
+  {
+    "sensorId": 3,
+    "status": "OFFLINE"
+  },
+  {
+    "sensorId": 4,
+    "status": "OFFLINE"
+  },
+  {
+    "sensorId": 5,
+    "status": "OFFLINE"
+  }
+]
+
+
+
 
 
 

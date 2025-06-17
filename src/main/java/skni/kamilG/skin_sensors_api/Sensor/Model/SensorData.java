@@ -20,7 +20,7 @@ public class SensorData {
   @Column(name = "data_id")
   private Long dataId;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sensor_id", nullable = false)
   private Sensor sensor;
 

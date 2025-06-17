@@ -5,8 +5,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.*;
 
 @NoArgsConstructor
@@ -41,9 +39,6 @@ public class Sensor implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "location_id", referencedColumnName = "id")
   private Location location;
-
-  @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Set<SensorData> sensorData = new HashSet<>();
 
   public void updateFromSensorData(SensorData latestSensorData, Clock clock) {
     this.temperature = latestSensorData.getTemperature();
