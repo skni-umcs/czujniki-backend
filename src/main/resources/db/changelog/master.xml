@@ -8,15 +8,4 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
     <preConditions>
         <runningAs username="${DB_USERNAME}"/>
     </preConditions>
-    <include file="db/changelog/2025/01/08-01-changelog.xml"/>
-    <include file="/db/data/location-init.sql"/>
-    <include file="/db/data/sensor-init.sql"/>
-    <include file="db/changelog/2025/02/05-02-changelog.xml"/>
-    <include file="db/changelog/2025/02/10-02-changelog.xml"/>
-    <include file="db/changelog/2025/02/27-02-changelog.xml"/>
-    <include file="db/changelog/2025/03/04-03-changelog.xml"/>
-    <include file="db/changelog/2025/03/05-03-changelog.xml"/>
-    <include file="db/changelog/2025/03/07-03-changelog.xml"/>
-    <include file="db/changelog/2025/03/11-03-changelog.xml"/>
-    <include file="db/changelog/2025/03/12-03-changelog.xml"/>
 </databaseChangeLog>

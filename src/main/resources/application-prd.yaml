@@ -6,6 +6,13 @@ spring:
   mvc:
     async:
       request-timeout: 720000
+  jpa:
+    properties:
+      hibernate:
+        default_schema: weathergrid
+    hibernate:
+      ddl-auto: create
+    show-sql: true
 
 influxdb:
   url: ${INFLUXDB_URL}
