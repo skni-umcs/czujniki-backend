@@ -9,4 +9,5 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
         <runningAs username="${DB_USERNAME}"/>
     </preConditions>
     <include file="db/changelog/2025/11/03-11-changelog.xml"/>
+    <include file="db/changelog/2025/11/05-11-changelog.xml"/>
 </databaseChangeLog>
