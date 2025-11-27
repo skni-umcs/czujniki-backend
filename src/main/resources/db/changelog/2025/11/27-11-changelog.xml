@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <changeSet id="7-load-prawo-data" author="kamilgolawski" context="data">
+        <loadData
+                encoding="UTF-8"
+                file="db/data/prawo/prawo-lokalizacje.csv"
+                separator=","
+                tableName="location">
+
+            <column header="id" name="id" type="NUMERIC"/>
+            <column header="latitude" name="latitude" type="NUMERIC"/>
+            <column header="longitude" name="longitude" type="NUMERIC"/>
+            <column header="facultyName" name="faculty_name" type="STRING"/>
+            <column header="facultyAbbreviation" name="faculty_abbreviation" type="STRING"/>
+
+        </loadData>
+        <loadData
+                encoding="UTF-8"
+                file="db/data/prawo/prawo-czujniki.csv"
+                separator=","
+                tableName="sensor">
+
+            <column header="id" name="id" type="NUMERIC"/>
+            <column header="status" name="status" type="STRING"/>
+            <column header="refreshRate" name="refresh_rate" type="NUMERIC"/>
+            <column header="floor" name="floor" type="NUMERIC"/>
+            <column header="location_id" name="location_id" type="NUMERIC"/>
+
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

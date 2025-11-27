@@ -6,7 +6,7 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
 
-    <changeSet id="4-load-hemia-data" author="kamilgolawski" context="data">
+    <changeSet id="4-load-human-data" author="kamilgolawski" context="data">
         <loadData
                 encoding="UTF-8"
                 file="db/data/human/human-lokalizacje.csv"
@@ -67,7 +67,7 @@
         <update tableName="location">
             <column name="latitude" value="51.24530662736254"/>
             <column name="longitude" value="22.542497158457984"/>
-            <where>id = 10</where>
+            <where>id = 31</where>
         </update>
     </changeSet>
 
